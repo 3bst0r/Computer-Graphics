@@ -31,6 +31,7 @@
 #include "LoadShader.h"   /* Provides loading function for shader code */
 #include "Matrix.h"  
 
+#define PI 3.14159265
 
 /*----------------------------------------------------------------*/
 
@@ -320,6 +321,26 @@ void CreateShaderProgram()
     glUseProgram(ShaderProgram);
 }
 
+/******************************************************
+*
+* returns [num_points] of a circle with radius [radius]
+* lying on the xy plane, center is at 0
+*
+*******************************************************/
+
+GLfloat* createCircle(int num_points, float radius) {
+    GLfloat *buf = malloc(3*num_points*sizeof(GLfloat));
+    GLfloat z = 0;
+    int i;
+    for (i = 0; i < num_points;i++) {
+       GLfloat x = radius * cos((i/num_points)*2*PI);
+       GLfloat y = radius * sin((i/num_points)*2*PI);
+       buf[3*i] = x;
+       buf[3*i+1] = y;
+       buf[3*i+2] = z;
+    }
+    return buf;
+}
 
 /******************************************************************
 *
