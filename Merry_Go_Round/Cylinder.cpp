@@ -1,0 +1,61 @@
+#include <iostream>
+#include <cmath>
+
+#include "Form.h"
+#include "Cylinder.h"
+
+using namespace std;
+
+Cylinder::Cylinder(int points, double radius, double height)
+: Form(points * 2 + 2, 4 * points){
+	//set color(white)
+	for(int i = 0; i < 3 * 2 * points + 6; i++){
+		color_buffer_data[i] = 0.;
+	}
+	
+	for(int i = 0; i < 6; i++){
+		color_buffer_data[3 * 2 * points + i] = 1.;
+	}
+	
+	for(int i = 0; i < points; i++){
+		vertex_buffer_data[3 * i] = radius * cos(M_PI * 2 * i / points);
+		vertex_buffer_data[3 * i + 1] = radius * sin(M_PI * 2 * i / points);
+		vertex_buffer_data[3 * i + 2] = 0.;
+		
+		vertex_buffer_data[3 * points + 3 * i] = radius * cos(M_PI * 2 * i / points);
+		vertex_buffer_data[3 * points + 3 * i + 1] = radius * sin(M_PI * 2 * i / points);
+		vertex_buffer_data[3 * points + 3 * i + 2] = height;
+	}
+	
+	// set center
+	vertex_buffer_data[6 * points] = 0;
+	vertex_buffer_data[6 * points + 1] = 0;
+	vertex_buffer_data[6 * points + 2] = 0;
+	
+	vertex_buffer_data[6 * points + 3] = 0;
+	vertex_buffer_data[6 * points + 4] = 0;
+	vertex_buffer_data[6 * points + 5] = height;
+	
+	for(int i = 0; i < points; i++){
+		index_buffer_data[12 * i + 0] = i;
+		index_buffer_data[12 * i + 1] = (i + 1) % points;
+		index_buffer_data[12 * i + 2] = i + points;
+		
+		index_buffer_data[12 * i + 3] = i + points;
+		index_buffer_data[12 * i + 4] = (i + 1) % points + points;
+		index_buffer_data[12 * i + 5] = (i + 1) % points;
+		
+		index_buffer_data[12 * i + 6] = i;
+		index_buffer_data[12 * i + 7] = (i + 1) % points;
+		index_buffer_data[12 * i + 8] = 2 * points;
+		
+		index_buffer_data[12 * i + 9] = points + i;
+		index_buffer_data[12 * i + 10] = (i + 1) % points + points;
+		index_buffer_data[12 * i + 11] = 2 * points + 1;
+	}
+	
+}
+
+Cylinder::~Cylinder(){
+
+}

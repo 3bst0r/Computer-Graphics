@@ -1,5 +1,5 @@
-CC = gcc
-OBJ = MerryGoRound.o LoadShader.o Matrix.o
+CC = g++
+OBJ = MerryGoRound.o LoadShader.o Matrix.o Form.o Cylinder.o
 CFLAGS = -g -Wall -Wextra
 
 LDLIBS=-lm -lglut -lGLEW -lGL

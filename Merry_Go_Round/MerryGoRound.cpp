@@ -17,10 +17,9 @@
 
 
 /* Standard includes */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
 
 /* OpenGL includes */
 #include <GL/glew.h>
@@ -29,9 +28,11 @@
 
 /* Local includes */
 #include "LoadShader.h"   /* Provides loading function for shader code */
-#include "Matrix.h"  
+#include "Matrix.h"
+#include "Form.h"
+#include "Cylinder.h"
 
-#define PI 3.14159265
+using namespace std;
 
 /*----------------------------------------------------------------*/
 
@@ -65,43 +66,7 @@ float RotateX[16];
 float RotateZ[16];
 float InitialTransform[16];
 
-
-GLfloat vertex_buffer_data[] = { /* 8 cube vertices XYZ */
-    -1.0, -1.0,  1.0,
-     1.0, -1.0,  1.0,
-     1.0,  1.0,  1.0,
-    -1.0,  1.0,  1.0,
-    -1.0, -1.0, -1.0,
-     1.0, -1.0, -1.0,
-     1.0,  1.0, -1.0,
-    -1.0,  1.0, -1.0,
-};   
-
-GLfloat color_buffer_data[] = { /* RGB color values for 8 vertices */
-    0.0, 0.0, 1.0,
-    1.0, 0.0, 1.0,
-    1.0, 1.0, 1.0,
-    0.0, 1.0, 1.0,
-    0.0, 0.0, 0.0,
-    1.0, 0.0, 0.0,
-    1.0, 1.0, 0.0,
-    0.0, 1.0, 0.0,
-}; 
-
-GLushort index_buffer_data[] = { /* Indices of 6*2 triangles (6 sides) */
-    0, 1, 2,
-    2, 3, 0,
-    1, 5, 6,
-    6, 2, 1,
-    7, 6, 5,
-    5, 4, 7,
-    4, 0, 3,
-    3, 7, 4,
-    4, 5, 1,
-    1, 0, 4,
-    3, 2, 6,
-    6, 7, 3,
-};
+Cylinder c(100, 1., 1.);
 
 /*----------------------------------------------------------------*/
 
@@ -138,7 +103,7 @@ void Display()
     GLint projectionUniform = glGetUniformLocation(ShaderProgram, "ProjectionMatrix");
     if (projectionUniform == -1) 
     {
-        fprintf(stderr, "Could not bind uniform ProjectionMatrix\n");
+        cerr << "Could not bind uniform ProjectionMatrix" << endl;
 	exit(-1);
     }
     glUniformMatrix4fv(projectionUniform, 1, GL_TRUE, ProjectionMatrix);
@@ -146,7 +111,7 @@ void Display()
     GLint ViewUniform = glGetUniformLocation(ShaderProgram, "ViewMatrix");
     if (ViewUniform == -1) 
     {
-        fprintf(stderr, "Could not bind uniform ViewMatrix\n");
+        cerr << "Could not bind uniform ViewMatrix" << endl;
         exit(-1);
     }
     glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix);
@@ -154,7 +119,7 @@ void Display()
     GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
     if (RotationUniform == -1) 
     {
-        fprintf(stderr, "Could not bind uniform ModelMatrix\n");
+        cerr << "Could not bind uniform ModelMatrix" << endl;
         exit(-1);
     }
     glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix);  
@@ -208,15 +173,15 @@ void SetupDataBuffers()
 {
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_buffer_data), vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * c.vertex_number * sizeof(GLfloat), c.vertex_buffer_data, GL_STATIC_DRAW);
 
     glGenBuffers(1, &IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(index_buffer_data), index_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * c.triangle_number * sizeof(GLshort), c.index_buffer_data, GL_STATIC_DRAW);
 
     glGenBuffers(1, &CBO);
     glBindBuffer(GL_ARRAY_BUFFER, CBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(color_buffer_data), color_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * c.vertex_number * sizeof(GLfloat), c.color_buffer_data, GL_STATIC_DRAW);
 }
 
 
@@ -235,7 +200,7 @@ void AddShader(GLuint ShaderProgram, const char* ShaderCode, GLenum ShaderType)
 
     if (ShaderObj == 0) 
     {
-        fprintf(stderr, "Error creating shader type %d\n", ShaderType);
+        cerr << "Error creating shader type " << ShaderType << endl;
         exit(0);
     }
 
@@ -252,7 +217,7 @@ void AddShader(GLuint ShaderProgram, const char* ShaderCode, GLenum ShaderType)
     if (!success) 
     {
         glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
-        fprintf(stderr, "Error compiling shader type %d: '%s'\n", ShaderType, InfoLog);
+        cerr << "Error compiling shader type " << ShaderType << ": '" << InfoLog << "'" << endl;
         exit(1);
     }
 
@@ -278,7 +243,7 @@ void CreateShaderProgram()
 
     if (ShaderProgram == 0) 
     {
-        fprintf(stderr, "Error creating shader program\n");
+        cerr << "Error creating shader program" << endl;
         exit(1);
     }
 
@@ -302,7 +267,7 @@ void CreateShaderProgram()
     if (Success == 0) 
     {
         glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
-        fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
+        cerr << "Error linking shader program: '" << ErrorLog << "'" << endl;
         exit(1);
     }
 
@@ -313,33 +278,12 @@ void CreateShaderProgram()
     if (!Success) 
     {
         glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
-        fprintf(stderr, "Invalid shader program: '%s'\n", ErrorLog);
+        cerr << "Invalid shader program: '" << ErrorLog << "'" << endl;
         exit(1);
     }
 
     /* Put linked shader program into drawing pipeline */
     glUseProgram(ShaderProgram);
-}
-
-/******************************************************
-*
-* returns [num_points] of a circle with radius [radius]
-* lying on the xy plane, center is at 0
-*
-*******************************************************/
-
-GLfloat* createCircle(int num_points, float radius) {
-    GLfloat *buf = malloc(3*num_points*sizeof(GLfloat));
-    GLfloat z = 0;
-    int i;
-    for (i = 0; i < num_points;i++) {
-       GLfloat x = radius * cos((i/num_points)*2*PI);
-       GLfloat y = radius * sin((i/num_points)*2*PI);
-       buf[3*i] = x;
-       buf[3*i+1] = y;
-       buf[3*i+2] = z;
-    }
-    return buf;
 }
 
 /******************************************************************
@@ -353,6 +297,7 @@ GLfloat* createCircle(int num_points, float radius) {
 
 void Initialize(void)
 {   
+    
     /* Set background (clear) color to dark blue */ 
     glClearColor(0.0, 0.0, 0.4, 0.0);
 
@@ -418,14 +363,14 @@ int main(int argc, char** argv)
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(600, 600);
     glutInitWindowPosition(400, 400);
-    glutCreateWindow("CG Proseminar - Rotating Cube");
+    glutCreateWindow("CG Proseminar - Merry-Go-Round");
 
 	/* Initialize GL extension wrangler */
 	glewExperimental = GL_TRUE;
     GLenum res = glewInit();
     if (res != GLEW_OK) 
     {
-        fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
+        cerr << "Error: '" << glewGetErrorString(res) << "'" << endl;
         return 1;
     }
 
@@ -440,5 +385,5 @@ int main(int argc, char** argv)
     glutMainLoop();
 
     /* ISO C requires main to return int */
-    return 0;
+    return EXIT_SUCCESS;
 }
