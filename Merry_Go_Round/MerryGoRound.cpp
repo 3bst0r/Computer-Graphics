@@ -323,7 +323,7 @@ void Initialize(void)
 
     /* Set projection transform */
     float fovy = 45.0;
-    float aspect = 1.0; 
+    float aspect = 2.0;
     float nearPlane = 1.0; 
     float farPlane = 50.0;
     SetPerspectiveMatrix(fovy, aspect, nearPlane, farPlane, ProjectionMatrix);
