@@ -66,7 +66,7 @@ float RotateX[16];
 float RotateZ[16];
 float InitialTransform[16];
 
-Cylinder c(100, 1., 1.);
+Cylinder c(100, 3., 0.2);
 
 /*----------------------------------------------------------------*/
 
@@ -333,9 +333,9 @@ void Initialize(void)
     SetTranslation(0.0, 0.0, camera_disp, ViewMatrix);
 
     /* Translate and rotate cube onto tip */
-    SetTranslation(1, 1, 1, TranslateOrigin);
-    SetRotationX(-45, RotateX);
-    SetRotationZ(35, RotateZ);	
+    SetTranslation(0, 0, -0.5, TranslateOrigin);
+    SetRotationX(90, RotateX);
+    SetRotationZ(0, RotateZ);	
 
     /* Translate down */	
     SetTranslation(0, -sqrtf(sqrtf(2.0) * 1.0), 0, TranslateDown);
