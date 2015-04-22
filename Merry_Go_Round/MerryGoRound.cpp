@@ -25,6 +25,7 @@
 #include "Transformation.h"
 #include "Shape.h"
 #include "Cylinder.h"
+#include "Cube.h"
 
 using namespace std;
 
@@ -155,6 +156,7 @@ void OnIdle()
 
     /* Apply model rotation; finally move cube down */
     ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
+    ModelMatrix[1].set_transformation(RotationMatrixAnim.matrix);
 
     /* Request redrawing of window content */
     glutPostRedisplay();
@@ -172,6 +174,7 @@ void OnIdle()
 
 void initObjects() {
     objects[0] = new Cylinder(100, 3., 0.2, 0.);
+    objects[1] = new Cube(0.5, 0.0, 0.0, 0.0);
     /* TODO add all the stuff to the object[0] (housing), define independent objects */
 }
 

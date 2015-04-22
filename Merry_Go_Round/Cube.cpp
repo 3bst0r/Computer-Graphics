@@ -6,7 +6,7 @@
 using namespace std;
 
 Cube::Cube(double size, double x_val, double y_val, double z_val) /* XYZ values of the cubes center and half of the edge length(size)*/
-: Shape(8, 12){
+: Form(8, 12){
 	
 	GLfloat vertex_buffer_data[] = { /* 8 cube vertices XYZ */
 		 (x_val - size), (y_val - size),  (z_val + size),

@@ -1,9 +1,7 @@
 #ifndef CUBE_H
 	#define CUBE_H
 	
-	#include "Shape.h"
-	
-	class Cube : public Shape {
+	class Cube : public Form {
 		public:
 			Cube(double size, double x_val, double y_val, double z_val);
 			~Cube();
