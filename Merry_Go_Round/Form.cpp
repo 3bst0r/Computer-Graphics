@@ -52,8 +52,8 @@ void Form::add_form(Form form) {
 		color_buffer_data = color_buffer_data_t;
 		index_buffer_data = index_buffer_data_t;
 	} else {
-		cout << "error reallocating memory";
-		exit(1);
+		cerr << "error reallocating memory";
+		exit(-1);
 	}
 
 	// append the new form's contents
