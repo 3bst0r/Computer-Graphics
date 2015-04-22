@@ -41,12 +41,11 @@ void Shape::print_indices() {
  * adds a new form to this form
  * the approach it uses is "absorb all the data from the new object and then kill it"
  */
-void Shape::add_form(Shape shape) {
+void Shape::add_shape(Shape* shape) {
 	// reallocate all the new memory
-	GLfloat* vertex_buffer_data_t = (GLfloat*) realloc(vertex_buffer_data, sizeof(vertex_buffer_data) + 3 * shape.vertex_number * sizeof(GLfloat));
-	GLfloat* color_buffer_data_t = (GLfloat*) realloc(color_buffer_data, sizeof(color_buffer_data) + 3 * shape.vertex_number * sizeof(GLfloat));
-	GLushort* index_buffer_data_t =  (GLushort*) realloc(index_buffer_data, sizeof(index_buffer_data) + 3 * shape.triangle_number * sizeof(GLushort));
-
+	GLfloat* vertex_buffer_data_t = (GLfloat*) realloc(vertex_buffer_data, 3 * vertex_number * sizeof(GLfloat) + 3 * shape->vertex_number * sizeof(GLfloat));
+	GLfloat* color_buffer_data_t = (GLfloat*) realloc(color_buffer_data, 3 * vertex_number * sizeof(GLfloat) + 3 * shape->vertex_number * sizeof(GLfloat));
+	GLushort* index_buffer_data_t =  (GLushort*) realloc(index_buffer_data, 3 * triangle_number * sizeof(GLushort) + 3 * shape->triangle_number * sizeof(GLushort));
 	if (index_buffer_data_t != NULL && color_buffer_data_t != NULL && index_buffer_data_t != NULL) {
 		vertex_buffer_data = vertex_buffer_data_t;
 		color_buffer_data = color_buffer_data_t;
@@ -55,19 +54,18 @@ void Shape::add_form(Shape shape) {
 		cerr << "error reallocating memory";
 		exit(-1);
 	}
-
+	
 	// append the new form's contents
-	memcpy(vertex_buffer_data+3*vertex_number,shape.vertex_buffer_data,sizeof(shape.vertex_buffer_data));
-	memcpy(color_buffer_data+3*vertex_number,shape.color_buffer_data,sizeof(shape.color_buffer_data));
-	memcpy(index_buffer_data+3*triangle_number,shape.index_buffer_data,sizeof(shape.index_buffer_data));
-
-	// add an offset of 3*triangle_number to all the new indices
-	for(int i = 3*triangle_number;i < 3*(triangle_number + shape.triangle_number); i++) {
-		index_buffer_data[i] += 3*triangle_number;
+	memcpy(vertex_buffer_data+3*vertex_number,shape->vertex_buffer_data,3 * shape->vertex_number * sizeof(GLfloat));
+	memcpy(color_buffer_data+3*vertex_number,shape->color_buffer_data,3 * shape->vertex_number * sizeof(GLfloat));
+	memcpy(index_buffer_data+3*triangle_number,shape->index_buffer_data,3 * shape->triangle_number * sizeof(GLushort));
+	
+	// add an offset of triangle_number to all the new indices
+	for(int i = 3 * triangle_number;i < 3 * (triangle_number + shape->triangle_number); i++) {
+		index_buffer_data[i] += vertex_number;
 	}
-
-	vertex_number += shape.vertex_number;
-	triangle_number += shape.triangle_number;
-	shape.~Shape();
+	vertex_number += shape->vertex_number;
+	triangle_number += shape->triangle_number;
+	delete shape;
 }
 

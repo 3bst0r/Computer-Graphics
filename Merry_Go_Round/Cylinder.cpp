@@ -8,23 +8,10 @@ using namespace std;
 
 Cylinder::Cylinder(int points, double radius, double height, double y_offset)
 : Shape(points * 2 + 2, 4 * points){
-	//set color(white)
+	//set random color
 	for(int i = 0; i < 6 * points + 2; i++){
 		color_buffer_data[i] = (float)rand() / RAND_MAX;
 	}
-	/*
-	for(int i = 0; i < (points/3); i++){
-		color_buffer_data[3*i] = 1.;
-		color_buffer_data[3*i + points] = 1.;
-	}
-	for(int i = (points/3); i < (2 * (points/3)); i++){
-		color_buffer_data[3*i+1] = 1.;
-		color_buffer_data[3*i+1 + points] = 1.;
-	}
-	for(int i = (2 * (points/3)); i < points; i++){
-		color_buffer_data[3*i+2] = 1.;
-		color_buffer_data[3*i+2 + points] = 1.;
-	}*/
 	
 	for(int i = 0; i < 6; i++){
 		color_buffer_data[3 * 2 * points + i] = 1.;

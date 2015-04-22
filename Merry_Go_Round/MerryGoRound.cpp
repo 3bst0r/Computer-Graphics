@@ -190,6 +190,7 @@ void OnIdle()
 
 void initObjects() {
     objects[0] = new Cylinder(100, 3., 0.2, 0.);
+    objects[0]->add_shape(new Cylinder(100, 3., 0.2, 2.));
     objects[1] = new Cube(0.5, 2.0, 1.0, 0.0);
     objects[2] = new Cube(0.5, -2.0, 1.0, 0.0);
     objects[3] = new Cube(0.5, 0.0, 1.0, 2.0);
