@@ -175,8 +175,7 @@ void initObjects() {
     /* TODO add all the stuff to the object[0] (housing), define independent objects */
 }
 
-void SetupDataBuffers()
-{
+void SetupDataBuffers() {
 
     /* initialize buffers for objects */
     for (int i = 0; i < 6; i++) {
@@ -194,6 +193,7 @@ void SetupDataBuffers()
         glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
         glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->color_buffer_data, GL_STATIC_DRAW);
     }
+}
 
 /******************************************************************
 *
