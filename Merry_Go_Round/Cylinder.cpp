@@ -7,7 +7,7 @@
 using namespace std;
 
 Cylinder::Cylinder(int points, double radius, double height, double y_offset)
-: Form(points * 2 + 2, 4 * points){
+: Shape(points * 2 + 2, 4 * points){
 	//set color(white)
 	for(int i = 0; i < 6 * points + 2; i++){
 		color_buffer_data[i] = (float)rand() / RAND_MAX;

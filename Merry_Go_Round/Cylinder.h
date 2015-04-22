@@ -3,7 +3,7 @@
 	
 	
 	
-	class Cylinder : public Form {
+	class Cylinder : public Shape {
 		public:
 			Cylinder(int points, double radius, double height, double y_offset);
 			~Cylinder();

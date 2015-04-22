@@ -60,7 +60,7 @@ Transformation InitialTransform;
 double height = 1;
 
 /* displayable objects */
-Form **objects = new Form*[6];
+Shape **objects = new Shape*[6];
 
 /*----------------------------------------------------------------*/
 
@@ -173,8 +173,9 @@ void OnIdle()
 
 
 void initObjects() {
-    objects[0] = new Cylinder(100, 3., 0.2, 0.);
-    objects[1] = new Cube(0.5, 0.0, 0.0, 0.0);
+    objects[1] = new Cylinder(100, 3., 0.2, 0.);
+    objects[0] = new Cube(0.5, 0.0, 3.0, 0.0);
+    
     /* TODO add all the stuff to the object[0] (housing), define independent objects */
 }
 
