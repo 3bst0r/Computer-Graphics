@@ -149,14 +149,30 @@ void OnIdle()
     // remember to multiply them with ModelMatrix[0] so that they rotate with the housing
     float angle = (glutGet(GLUT_ELAPSED_TIME) / 1000.0) * (180.0/M_PI); 
     Transformation RotationMatrixAnim;
+    Transformation TranslationMatrixAnim1;
+    Transformation TranslationMatrixAnim2;
+    Transformation TranslationMatrixAnim3;
+    Transformation TranslationMatrixAnim4;
 
     /* Time dependent rotation */
     RotationMatrixAnim.rotateY(angle);
     RotationMatrixAnim.multiply(InitialTransform.matrix);
+    TranslationMatrixAnim1.translate(0.0, cos(angle/50.)/5., 0.0);
+    TranslationMatrixAnim1.multiply(RotationMatrixAnim.matrix);
+    TranslationMatrixAnim2.translate(0.0, cos(angle/50.)/5., 0.0);
+    TranslationMatrixAnim2.multiply(RotationMatrixAnim.matrix);
+    TranslationMatrixAnim3.translate(0.0, sin(angle/50.)/5., 0.0);
+    TranslationMatrixAnim3.multiply(RotationMatrixAnim.matrix);
+    TranslationMatrixAnim4.translate(0.0, sin(angle/50.)/5., 0.0);
+    TranslationMatrixAnim4.multiply(RotationMatrixAnim.matrix);
+
 
     /* Apply model rotation; finally move cube down */
     ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
-    ModelMatrix[1].set_transformation(RotationMatrixAnim.matrix);
+    ModelMatrix[1].set_transformation(TranslationMatrixAnim1.matrix);
+    ModelMatrix[2].set_transformation(TranslationMatrixAnim2.matrix);
+    ModelMatrix[3].set_transformation(TranslationMatrixAnim3.matrix);
+    ModelMatrix[4].set_transformation(TranslationMatrixAnim4.matrix);
 
     /* Request redrawing of window content */
     glutPostRedisplay();
@@ -173,8 +189,11 @@ void OnIdle()
 
 
 void initObjects() {
-    objects[1] = new Cylinder(100, 3., 0.2, 0.);
-    objects[0] = new Cube(0.5, 0.0, 3.0, 0.0);
+    objects[0] = new Cylinder(100, 3., 0.2, 0.);
+    objects[1] = new Cube(0.5, 2.0, 1.0, 0.0);
+    objects[2] = new Cube(0.5, -2.0, 1.0, 0.0);
+    objects[3] = new Cube(0.5, 0.0, 1.0, 2.0);
+    objects[4] = new Cube(0.5, 0.0, 1.0, -2.0);
     
     /* TODO add all the stuff to the object[0] (housing), define independent objects */
 }
