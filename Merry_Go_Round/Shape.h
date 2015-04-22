@@ -10,6 +10,7 @@
 			~Form();
 			void print_vertices();
 			void print_indices();
+			void add_form(Form form);
 			GLfloat* vertex_buffer_data = NULL;
 			GLfloat* color_buffer_data = NULL;
 			GLushort* index_buffer_data = NULL;

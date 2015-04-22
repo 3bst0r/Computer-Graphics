@@ -1,17 +1,10 @@
 /******************************************************************
 *
-* RotatingCube.c
-*
-* Description: This example demonstrates a colored, rotating
-* cube in shader-based OpenGL. The use of transformation
-* matrices, perspective projection, and indexed triangle sets 
-* are shown.
+* MerryGoRound.cpp
 *
 * Computer Graphics Proseminar SS 2015
 * 
-* Interactive Graphics and Simulation Group
-* Institute of Computer Science
-* University of Innsbruck
+*
 *
 *******************************************************************/
 
@@ -20,6 +13,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
+#include <cstring>
 
 /* OpenGL includes */
 #include <GL/glew.h>
@@ -28,22 +22,24 @@
 
 /* Local includes */
 #include "LoadShader.h"   /* Provides loading function for shader code */
-#include "Matrix.h"
-#include "Form.h"
+#include "Transformation.h"
+#include "Shape.h"
 #include "Cylinder.h"
 
 using namespace std;
 
 /*----------------------------------------------------------------*/
+/* 0: whole housing
+ * 1-5: independently moving objects */
 
-/* Define handle to a vertex buffer object */
-GLuint VBO;
+/* Define handlers to vertex buffer objects */
+GLuint VBO[6];
 
-/* Define handle to a color buffer object */
-GLuint CBO; 
+/* Define handlers to color buffer objects */
+GLuint CBO[6];
 
-/* Define handle to an index buffer object */
-GLuint IBO;
+/* Define handlers to index buffer objects */
+GLuint IBO[6];
 
 
 /* Indices to vertex attributes; in this case positon and color */ 
@@ -55,18 +51,15 @@ static const char* FragmentShaderString;
 
 GLuint ShaderProgram;
 
-float ProjectionMatrix[16]; /* Perspective projection matrix */
-float ViewMatrix[16]; /* Camera view matrix */ 
-float ModelMatrix[16]; /* Model matrix */ 
+Transformation ProjectionMatrix; /* Perspective projection matrix */
+Transformation ViewMatrix; /* Camera view matrix */ 
+Transformation ModelMatrix[6]; /* Model matrix */ 
+Transformation InitialTransform;
 
-/* Transformation matrices for initial position */
-float TranslateOrigin[16];
-float TranslateDown[16];
-float RotateX[16];
-float RotateZ[16];
-float InitialTransform[16];
+double height = 1;
 
-Cylinder c(100, 3., 0.2);
+/* displayable objects */
+Form **objects = new Form*[6];
 
 /*----------------------------------------------------------------*/
 
@@ -87,45 +80,50 @@ void Display()
     /* Clear window; color specified in 'Initialize()' */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glEnableVertexAttribArray(vPosition);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    for (int i = 0; i < 6; i++) {
+		if(objects[i] == NULL)
+			continue;
 
-    glEnableVertexAttribArray(vColor);
-    glBindBuffer(GL_ARRAY_BUFFER, CBO);
-    glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);   
+        glEnableVertexAttribArray(vPosition);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    GLint size; 
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+        glEnableVertexAttribArray(vColor);
+        glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
+        glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[i]);
 
-    /* Associate program with shader matrices */
-    GLint projectionUniform = glGetUniformLocation(ShaderProgram, "ProjectionMatrix");
-    if (projectionUniform == -1) 
-    {
-        cerr << "Could not bind uniform ProjectionMatrix" << endl;
-	exit(-1);
-    }
-    glUniformMatrix4fv(projectionUniform, 1, GL_TRUE, ProjectionMatrix);
+        GLint size;
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+
+        /* Associate program with shader matrices */
+        GLint projectionUniform = glGetUniformLocation(ShaderProgram, "ProjectionMatrix");
+        if (projectionUniform == -1)
+        {
+            cerr << "Could not bind uniform ProjectionMatrix" << endl;
+            exit(-1);
+        }
+        glUniformMatrix4fv(projectionUniform, 1, GL_TRUE, ProjectionMatrix.matrix);
     
-    GLint ViewUniform = glGetUniformLocation(ShaderProgram, "ViewMatrix");
-    if (ViewUniform == -1) 
-    {
-        cerr << "Could not bind uniform ViewMatrix" << endl;
-        exit(-1);
-    }
-    glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix);
+		GLint ViewUniform = glGetUniformLocation(ShaderProgram, "ViewMatrix");
+		if (ViewUniform == -1) 
+		{
+			cerr << "Could not bind uniform ViewMatrix" << endl;
+			exit(-1);
+		}
+		glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix.matrix);
    
-    GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
-    if (RotationUniform == -1) 
-    {
-        cerr << "Could not bind uniform ModelMatrix" << endl;
-        exit(-1);
-    }
-    glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix);  
+		GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+		if (RotationUniform == -1) 
+		{
+			cerr << "Could not bind uniform ModelMatrix" << endl;
+			exit(-1);
+		}
+		glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix[i].matrix); 
 
-    /* Issue draw command, using indexed triangle list */
-    glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+        /* Issue draw command, using indexed triangle list */
+        glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+    }
 
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
@@ -146,17 +144,19 @@ void Display()
 
 void OnIdle()
 {
+	// TODO here we have to set all the ModelMatrices for the independent objects
+    // remember to multiply them with ModelMatrix[0] so that they rotate with the housing
     float angle = (glutGet(GLUT_ELAPSED_TIME) / 1000.0) * (180.0/M_PI); 
-    float RotationMatrixAnim[16];
+    Transformation RotationMatrixAnim;
 
     /* Time dependent rotation */
-    SetRotationY(angle, RotationMatrixAnim);
+    RotationMatrixAnim.rotateY(angle);
+    RotationMatrixAnim.multiply(InitialTransform.matrix);
 
     /* Apply model rotation; finally move cube down */
-    MultiplyMatrix(RotationMatrixAnim, InitialTransform, ModelMatrix);
-    MultiplyMatrix(TranslateDown, ModelMatrix, ModelMatrix);
+    ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
 
-    /* Request redrawing forof window content */  
+    /* Request redrawing of window content */
     glutPostRedisplay();
 }
 
@@ -169,21 +169,31 @@ void OnIdle()
 *
 *******************************************************************/
 
-void SetupDataBuffers()
-{
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, 3 * c.vertex_number * sizeof(GLfloat), c.vertex_buffer_data, GL_STATIC_DRAW);
-	
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * c.triangle_number * sizeof(GLshort), c.index_buffer_data, GL_STATIC_DRAW);
 
-    glGenBuffers(1, &CBO);
-    glBindBuffer(GL_ARRAY_BUFFER, CBO);
-    glBufferData(GL_ARRAY_BUFFER, 3 * c.vertex_number * sizeof(GLfloat), c.color_buffer_data, GL_STATIC_DRAW);
+void initObjects() {
+    objects[0] = new Cylinder(100, 3., 0.2, 0.);
+    /* TODO add all the stuff to the object[0] (housing), define independent objects */
 }
 
+void SetupDataBuffers()
+{
+
+    /* initialize buffers for objects */
+    for (int i = 0; i < 6; i++) {
+		if(objects[i] == NULL)
+			continue;
+        glGenBuffers(1, &VBO[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
+        glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat),objects[i]->vertex_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &IBO[i]);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[i]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * objects[i]->triangle_number * sizeof(GLshort), objects[i]->index_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &CBO[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
+        glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->color_buffer_data, GL_STATIC_DRAW);
+    }
 
 /******************************************************************
 *
@@ -264,7 +274,7 @@ void CreateShaderProgram()
     /* Check results of linking step */
     glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
 
-    if (Success == 0) 
+    if (Success == 0)
     {
         glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
         cerr << "Error linking shader program: '" << ErrorLog << "'" << endl;
@@ -314,35 +324,23 @@ void Initialize(void)
     SetupDataBuffers();
 
     /* Setup shaders and shader program */
-    CreateShaderProgram();  
-
-    /* Initialize matrices */
-    SetIdentityMatrix(ProjectionMatrix);
-    SetIdentityMatrix(ViewMatrix);
-    SetIdentityMatrix(ModelMatrix);
+    CreateShaderProgram();
 
     /* Set projection transform */
     float fovy = 45.0;
-    float aspect = 1.0; 
+    float aspect = 2.0;
     float nearPlane = 1.0; 
     float farPlane = 50.0;
-    SetPerspectiveMatrix(fovy, aspect, nearPlane, farPlane, ProjectionMatrix);
+    float temp[16];
+    SetPerspectiveMatrix(fovy, aspect, nearPlane, farPlane, temp);
+	ProjectionMatrix.set_transformation(temp);
 
     /* Set viewing transform */
     float camera_disp = -10.0;
-    SetTranslation(0.0, 0.0, camera_disp, ViewMatrix);
-
-    /* Translate and rotate cube onto tip */
-    SetTranslation(0, 0, -0.5, TranslateOrigin);
-    SetRotationX(90, RotateX);
-    SetRotationZ(0, RotateZ);	
-
-    /* Translate down */	
-    SetTranslation(0, -sqrtf(sqrtf(2.0) * 1.0), 0, TranslateDown);
+    ViewMatrix.translate(0.0, 0.0, camera_disp);
 
     /* Initial transformation matrix */
-    MultiplyMatrix(RotateX, TranslateOrigin, InitialTransform);
-    MultiplyMatrix(RotateZ, InitialTransform, InitialTransform);
+	InitialTransform.translate(0, -sqrtf(sqrtf(2.0)), 0);
 }
 
 
@@ -356,6 +354,9 @@ void Initialize(void)
 
 int main(int argc, char** argv)
 {
+
+    initObjects();
+
     /* Initialize GLUT; set double buffered window and RGBA color model */
     glutInit(&argc, argv);
 	glutInitContextVersion(3, 3);
