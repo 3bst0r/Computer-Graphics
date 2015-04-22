@@ -174,7 +174,7 @@ void SetupDataBuffers()
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, 3 * c.vertex_number * sizeof(GLfloat), c.vertex_buffer_data, GL_STATIC_DRAW);
-
+	
     glGenBuffers(1, &IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * c.triangle_number * sizeof(GLshort), c.index_buffer_data, GL_STATIC_DRAW);
