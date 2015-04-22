@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <time.h>
 
 #include "Shape.h"
 #include "Cylinder.h"
@@ -8,9 +9,18 @@ using namespace std;
 
 Cylinder::Cylinder(int points, double radius, double height, double y_offset)
 : Shape(points * 2 + 2, 4 * points){
+	srand(time(NULL));
+	float color;
 	//set random color
-	for(int i = 0; i < 6 * points + 2; i++){
-		color_buffer_data[i] = (float)rand() / RAND_MAX;
+	for(int i = 0; i < 3 * points; i++){
+		color = ((float)rand()) / RAND_MAX;
+		color_buffer_data[i] = color;
+		color_buffer_data[3 * points + i] = color;
+	}
+	
+	//set center color(white)
+	for(int i = 3 * points; i < 3 *points + 2 * 3; i++){
+		color_buffer_data[i] = 0.;
 	}
 	
 	for(int i = 0; i < 6; i++){
