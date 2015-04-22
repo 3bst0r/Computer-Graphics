@@ -20,6 +20,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
+#include <cstring>
 
 /* OpenGL includes */
 #include <GL/glew.h>
@@ -28,8 +29,8 @@
 
 /* Local includes */
 #include "LoadShader.h"   /* Provides loading function for shader code */
-#include "Matrix.h"
-#include "Form.h"
+#include "Transformation.h"
+#include "Shape.h"
 #include "Cylinder.h"
 
 using namespace std;
@@ -55,18 +56,15 @@ static const char* FragmentShaderString;
 
 GLuint ShaderProgram;
 
-float ProjectionMatrix[16]; /* Perspective projection matrix */
-float ViewMatrix[16]; /* Camera view matrix */ 
-float ModelMatrix[16]; /* Model matrix */ 
+Transformation ProjectionMatrix; /* Perspective projection matrix */
+Transformation ViewMatrix; /* Camera view matrix */ 
+Transformation ModelMatrix; /* Model matrix */ 
+Transformation InitialTransform;
 
-/* Transformation matrices for initial position */
-float TranslateOrigin[16];
-float TranslateDown[16];
-float RotateX[16];
-float RotateZ[16];
-float InitialTransform[16];
+double height = 1;
 
-Cylinder c(100, 3., 0.2);
+Cylinder c(100, 3., 0.2, 0);
+//Cylinder top(100, 3., 0.2, height);
 
 /*----------------------------------------------------------------*/
 
@@ -106,7 +104,7 @@ void Display()
         cerr << "Could not bind uniform ProjectionMatrix" << endl;
 	exit(-1);
     }
-    glUniformMatrix4fv(projectionUniform, 1, GL_TRUE, ProjectionMatrix);
+    glUniformMatrix4fv(projectionUniform, 1, GL_TRUE, ProjectionMatrix.matrix);
     
     GLint ViewUniform = glGetUniformLocation(ShaderProgram, "ViewMatrix");
     if (ViewUniform == -1) 
@@ -114,7 +112,7 @@ void Display()
         cerr << "Could not bind uniform ViewMatrix" << endl;
         exit(-1);
     }
-    glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix);
+    glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix.matrix);
    
     GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
     if (RotationUniform == -1) 
@@ -122,7 +120,7 @@ void Display()
         cerr << "Could not bind uniform ModelMatrix" << endl;
         exit(-1);
     }
-    glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix);  
+    glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix.matrix);  
 
     /* Issue draw command, using indexed triangle list */
     glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
@@ -147,14 +145,16 @@ void Display()
 void OnIdle()
 {
     float angle = (glutGet(GLUT_ELAPSED_TIME) / 1000.0) * (180.0/M_PI); 
-    float RotationMatrixAnim[16];
+    Transformation RotationMatrixAnim;
 
     /* Time dependent rotation */
-    SetRotationY(angle, RotationMatrixAnim);
+    RotationMatrixAnim.rotateY(angle);
+    RotationMatrixAnim.multiply(InitialTransform.matrix);
 
     /* Apply model rotation; finally move cube down */
-    MultiplyMatrix(RotationMatrixAnim, InitialTransform, ModelMatrix);
-    MultiplyMatrix(TranslateDown, ModelMatrix, ModelMatrix);
+    ModelMatrix.set_transformation(RotationMatrixAnim.matrix);
+    
+    //MultiplyMatrix(TranslateDown, ModelMatrix, ModelMatrix);
 
     /* Request redrawing forof window content */  
     glutPostRedisplay();
@@ -264,7 +264,7 @@ void CreateShaderProgram()
     /* Check results of linking step */
     glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
 
-    if (Success == 0) 
+    if (Success == 0)
     {
         glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
         cerr << "Error linking shader program: '" << ErrorLog << "'" << endl;
@@ -314,35 +314,23 @@ void Initialize(void)
     SetupDataBuffers();
 
     /* Setup shaders and shader program */
-    CreateShaderProgram();  
-
-    /* Initialize matrices */
-    SetIdentityMatrix(ProjectionMatrix);
-    SetIdentityMatrix(ViewMatrix);
-    SetIdentityMatrix(ModelMatrix);
+    CreateShaderProgram();
 
     /* Set projection transform */
     float fovy = 45.0;
     float aspect = 2.0;
     float nearPlane = 1.0; 
     float farPlane = 50.0;
-    SetPerspectiveMatrix(fovy, aspect, nearPlane, farPlane, ProjectionMatrix);
+    float temp[16];
+    SetPerspectiveMatrix(fovy, aspect, nearPlane, farPlane, temp);
+	ProjectionMatrix.set_transformation(temp);
 
     /* Set viewing transform */
     float camera_disp = -10.0;
-    SetTranslation(0.0, 0.0, camera_disp, ViewMatrix);
-
-    /* Translate and rotate cube onto tip */
-    SetTranslation(0, 0, -0.5, TranslateOrigin);
-    SetRotationX(90, RotateX);
-    SetRotationZ(0, RotateZ);	
-
-    /* Translate down */	
-    SetTranslation(0, -sqrtf(sqrtf(2.0) * 1.0), 0, TranslateDown);
+    ViewMatrix.translate(0.0, 0.0, camera_disp);
 
     /* Initial transformation matrix */
-    MultiplyMatrix(RotateX, TranslateOrigin, InitialTransform);
-    MultiplyMatrix(RotateZ, InitialTransform, InitialTransform);
+   InitialTransform.translate(0, -sqrtf(sqrtf(2.0)), 0);
 }
 
 
@@ -376,7 +364,6 @@ int main(int argc, char** argv)
 
     /* Setup scene and rendering parameters */
     Initialize();
-
 
     /* Specify callback functions;enter GLUT event processing loop, 
      * handing control over to GLUT */
