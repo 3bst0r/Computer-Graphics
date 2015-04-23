@@ -1,3 +1,11 @@
+/******************************************************************
+*
+* Cube.cpp
+*
+* Description: Class to create a cube shape
+*
+*******************************************************************/
+
 #include <iostream>
 #include <cstring>
 
@@ -6,6 +14,13 @@
 
 using namespace std;
 
+/******************************************************************
+*
+* Cube::Cube
+*
+* creates a cube object with the given specification
+*
+*******************************************************************/
 Cube::Cube(double size, double x_val, double y_val, double z_val) /* XYZ values of the cubes center and half of the edge length(size)*/
 : Shape(8, 12){
 	center_x = x_val;
@@ -48,11 +63,19 @@ Cube::Cube(double size, double x_val, double y_val, double z_val) /* XYZ values 
 		6, 7, 3,
 	};
 	
+	/* copy tmp data buffer into our buffer */
 	memcpy(vertex_buffer_data, vertex_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
 	memcpy(color_buffer_data, color_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
 	memcpy(index_buffer_data, index_buffer_data_tmp, 3 * 12 * sizeof(GLshort));
 }
 
+/******************************************************************
+*
+* Cube::~Cube
+*
+* default destructor
+*
+*******************************************************************/
 Cube::~Cube(){
 	
 }

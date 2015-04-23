@@ -1,3 +1,12 @@
+/******************************************************************
+*
+* Transformation.cpp
+*
+* Description: Class to build a transformation matrix + function to set
+* 			   set the perspective matrix
+*
+*******************************************************************/
+
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
@@ -6,6 +15,15 @@
 #include "Transformation.h"
 
 using namespace std;
+
+/******************************************************************
+*
+* Transformation::Transformation
+*
+* creates a new Transformation object and initializes it with the
+* identity matrix
+*
+*******************************************************************/
 
 Transformation::Transformation(){
 	matrix = (float*)calloc(16, sizeof(float));
@@ -21,10 +39,26 @@ Transformation::Transformation(){
 	matrix[15] = 1;
 }
 
+/******************************************************************
+*
+* Transformation::~Transformation
+*
+* free the allocated memory
+*
+*******************************************************************/
+
 Transformation::~Transformation(){
 	if(matrix != NULL)
 		free(matrix);
 }
+
+/******************************************************************
+*
+* Transformation::rotateX
+*
+* rotates the Transformation around the X-Axis with the given angle
+*
+*******************************************************************/
 
 void Transformation::rotateX(float angle){
 	angle = M_PI/180 * angle;
@@ -39,6 +73,14 @@ void Transformation::rotateX(float angle){
     multiply(temp);
 }
 
+/******************************************************************
+*
+* Transformation::rotateY
+*
+* rotates the Transformation around the Y-Axis with the given angle
+*
+*******************************************************************/
+
 void Transformation::rotateY(float angle){
 	angle = M_PI/180 * angle;
 	float temp[16] = 
@@ -52,6 +94,14 @@ void Transformation::rotateY(float angle){
     multiply(temp);
 }
 
+/******************************************************************
+*
+* Transformation::rotateZ
+*
+* rotates the Transformation around the Z-Axis with the given angle
+*
+*******************************************************************/
+
 void Transformation::rotateZ(float angle){
 	angle = M_PI/180 * angle;
 	float temp[16] = 
@@ -64,6 +114,14 @@ void Transformation::rotateZ(float angle){
     
     multiply(temp);
 }
+
+/******************************************************************
+*
+* Transformation::translate
+*
+* translate the Transformation by the given values
+*
+*******************************************************************/
 
 void Transformation::translate(float x, float y, float z){
 	float temp[16] = 
@@ -80,7 +138,9 @@ void Transformation::translate(float x, float y, float z){
 
 /******************************************************************
 *
-* MultiplyMatrix
+* Transformation::multiply
+* 
+* multipy the Transformation with a given matrix
 *
 *******************************************************************/
 
@@ -119,6 +179,8 @@ void Transformation::set_transformation(float* m){
 /******************************************************************
 *
 * SetPerspectiveMatrix
+* 
+* sets the perspective matrix with the given values
 *
 *******************************************************************/
 

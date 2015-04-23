@@ -1,5 +1,13 @@
-#ifndef SHAPE_H
-	#define SHAPE_H
+/******************************************************************
+*
+* Shape.h
+*
+* Description: Class to create basic shapes
+*
+*******************************************************************/
+
+#ifndef __SHAPE_H__
+	#define __SHAPE_H__
 	
 	#include <GL/glut.h>
 	#include <GL/gl.h>
@@ -12,9 +20,9 @@
 			void print_indices();
 			void add_shape(Shape* shape);
 			
-			GLfloat* vertex_buffer_data = NULL;
-			GLfloat* color_buffer_data = NULL;
-			GLushort* index_buffer_data = NULL;
+			GLfloat* vertex_buffer_data;
+			GLfloat* color_buffer_data;
+			GLushort* index_buffer_data;
 			int vertex_number;
 			int triangle_number;
 			double center_x;

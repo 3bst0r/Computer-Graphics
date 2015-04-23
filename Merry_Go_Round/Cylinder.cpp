@@ -1,3 +1,12 @@
+/******************************************************************
+*
+* Cylinder.cpp
+*
+* Description: Class to create a cylinder shape
+*
+*******************************************************************/
+
+
 #include <iostream>
 #include <cmath>
 #include <time.h>
@@ -7,6 +16,13 @@
 
 using namespace std;
 
+/******************************************************************
+*
+* Cylinder::Cylinder
+*
+* creates a basic cylinder object with the given specification
+*
+*******************************************************************/
 Cylinder::Cylinder(int points, double radius, double height, double x_offset, double y_offset, double z_offset)
 : Shape(points * 2 + 2, 4 * points){
 	center_x = x_offset;
@@ -68,6 +84,13 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 	}	
 }
 
+/******************************************************************
+*
+* Cylinder::~Cylinder
+*
+* default destructor
+*
+*******************************************************************/
 Cylinder::~Cylinder(){
 
 }

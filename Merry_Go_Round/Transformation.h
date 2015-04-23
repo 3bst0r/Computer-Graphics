@@ -1,3 +1,12 @@
+/******************************************************************
+*
+* Transformation.h
+*
+* Description: Class to build a transformation matrix + function to set
+* 			   set the perspective matrix
+*
+*******************************************************************/
+
 #ifndef __TRANSFORMATION_H__
 	#define __TRANSFORMATION_H__
 

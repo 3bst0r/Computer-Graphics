@@ -1,5 +1,13 @@
-#ifndef CYLINDER_H
-	#define CYLINDER_H
+/******************************************************************
+*
+* Cylinder.h
+*
+* Description: Class to create a cylinder shape
+*
+*******************************************************************/
+
+#ifndef __CYLINDER_H__
+	#define __CYLINDER_H__
 	
 	
 	

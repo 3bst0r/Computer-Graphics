@@ -195,17 +195,16 @@ void OnIdle()
     glutPostRedisplay();
 }
 
-
 /******************************************************************
 *
-* SetupDataBuffers
+* initObjects
 *
-* Create buffer objects and load data into buffers
+* initialize shapes
 *
 *******************************************************************/
 
-
 void initObjects() {
+	/* create the basic shape */
     objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0.);
     objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0.));
     objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0.));
@@ -216,13 +215,20 @@ void initObjects() {
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2.));
     
     
+    /* create the 4 cubes */
     objects[1] = new Cube(0.5, 2.0, 1.0, 0.0);
     objects[2] = new Cube(0.5, -2.0, 1.0, 0.0);
     objects[3] = new Cube(0.5, 0.0, 1.0, 2.0);
     objects[4] = new Cube(0.5, 0.0, 1.0, -2.0);
-    
-    /* TODO add all the stuff to the object[0] (housing), define independent objects */
 }
+
+/******************************************************************
+*
+* SetupDataBuffers
+*
+* Create buffer objects and load data into buffers
+*
+*******************************************************************/
 
 void SetupDataBuffers() {
 
@@ -403,7 +409,7 @@ void Initialize(void)
 
 int main(int argc, char** argv)
 {
-
+	/* initialize objects */
     initObjects();
 
     /* Initialize GLUT; set double buffered window and RGBA color model */
@@ -434,6 +440,5 @@ int main(int argc, char** argv)
     glutDisplayFunc(Display);
     glutMainLoop();
 
-    /* ISO C requires main to return int */
     return EXIT_SUCCESS;
 }

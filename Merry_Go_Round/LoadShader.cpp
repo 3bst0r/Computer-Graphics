@@ -1,6 +1,6 @@
 /******************************************************************
 *
-* LoadShader.c
+* LoadShader.cpp
 *
 * Description: Helper routine for loading shader source code.
 * 	
