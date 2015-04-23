@@ -23,7 +23,7 @@ using namespace std;
 * creates a basic cylinder object with the given specification
 *
 *******************************************************************/
-Cylinder::Cylinder(int points, double radius, double height, double x_offset, double y_offset, double z_offset)
+Cylinder::Cylinder(int points, double radius, double height, double x_offset, double y_offset, double z_offset, double top_center_offset)
 : Shape(points * 2 + 2, 4 * points){
 	center_x = x_offset;
 	center_y = y_offset + height / 2;
@@ -62,7 +62,7 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 	vertex_buffer_data[6 * points + 2] = z_offset;
 	
 	vertex_buffer_data[6 * points + 3] = x_offset;
-	vertex_buffer_data[6 * points + 4] = y_offset + height;
+	vertex_buffer_data[6 * points + 4] = y_offset + height + top_center_offset;
 	vertex_buffer_data[6 * points + 5] = z_offset;
 	
 	for(int i = 0; i < points; i++){

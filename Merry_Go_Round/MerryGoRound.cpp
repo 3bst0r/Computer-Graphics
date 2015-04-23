@@ -203,14 +203,14 @@ void OnIdle()
 
 void initObjects() {
 	/* create the basic shape */
-    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0.);
-    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0.));
-    objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0.));
+    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0., 0.);
+    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0., 1.));
+    objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0., 0.));
 
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0.));
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0.));
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2.));
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0., 0.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0., 0.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2., 0.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2., 0.));
   
     
     /* create the 4 cubes */
