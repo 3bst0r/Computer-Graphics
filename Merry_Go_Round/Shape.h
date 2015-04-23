@@ -13,7 +13,7 @@
 			void add_shape(Shape* shape);
 			
 			GLfloat* vertex_buffer_data;
-			GLfloat* color_buffer_dataL;
+			GLfloat* color_buffer_data;
 			GLushort* index_buffer_data;
 			int vertex_number;
 			int triangle_number;
