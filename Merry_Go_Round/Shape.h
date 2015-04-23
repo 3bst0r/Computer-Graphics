@@ -12,9 +12,9 @@
 			void print_indices();
 			void add_shape(Shape* shape);
 			
-			GLfloat* vertex_buffer_data = NULL;
-			GLfloat* color_buffer_data = NULL;
-			GLushort* index_buffer_data = NULL;
+			GLfloat* vertex_buffer_data;
+			GLfloat* color_buffer_dataL;
+			GLushort* index_buffer_data;
 			int vertex_number;
 			int triangle_number;
 			double center_x;
