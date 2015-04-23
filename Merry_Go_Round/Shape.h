@@ -17,6 +17,9 @@
 			GLushort* index_buffer_data = NULL;
 			int vertex_number;
 			int triangle_number;
+			double center_x;
+			double center_y;
+			double center_z;
 	};
 	
 #endif

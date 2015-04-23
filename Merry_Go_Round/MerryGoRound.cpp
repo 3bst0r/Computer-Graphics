@@ -157,14 +157,31 @@ void OnIdle()
     /* Time dependent rotation */
     RotationMatrixAnim.rotateY(angle);
     RotationMatrixAnim.multiply(InitialTransform.matrix);
-    TranslationMatrixAnim1.translate(0.0, cos(angle/50.)/5., 0.0);
+    
+    
+    TranslationMatrixAnim1.translate(0.0, cos(angle/50)/5., 0.0);
     TranslationMatrixAnim1.multiply(RotationMatrixAnim.matrix);
+    TranslationMatrixAnim1.translate(objects[1]->center_x, objects[1]->center_y, objects[1]->center_z);
+    TranslationMatrixAnim1.rotateY(10 * angle);
+    TranslationMatrixAnim1.translate(-objects[1]->center_x, -objects[1]->center_y, -objects[1]->center_z);
+    
     TranslationMatrixAnim2.translate(0.0, cos(angle/50.)/5., 0.0);
     TranslationMatrixAnim2.multiply(RotationMatrixAnim.matrix);
+    TranslationMatrixAnim2.translate(objects[2]->center_x, objects[2]->center_y, objects[2]->center_z);
+    TranslationMatrixAnim2.rotateY(-10 * angle);
+    TranslationMatrixAnim2.translate(-objects[2]->center_x, -objects[2]->center_y, -objects[2]->center_z);
+    
     TranslationMatrixAnim3.translate(0.0, sin(angle/50.)/5., 0.0);
     TranslationMatrixAnim3.multiply(RotationMatrixAnim.matrix);
+    TranslationMatrixAnim3.translate(objects[3]->center_x, objects[3]->center_y, objects[3]->center_z);
+    TranslationMatrixAnim3.rotateY(10 * angle);
+    TranslationMatrixAnim3.translate(-objects[3]->center_x, -objects[3]->center_y, -objects[3]->center_z);
+    
     TranslationMatrixAnim4.translate(0.0, sin(angle/50.)/5., 0.0);
     TranslationMatrixAnim4.multiply(RotationMatrixAnim.matrix);
+    TranslationMatrixAnim4.translate(objects[4]->center_x, objects[4]->center_y, objects[4]->center_z);
+    TranslationMatrixAnim4.rotateY(-10 * angle);
+    TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
 
 
     /* Apply model rotation; finally move cube down */
@@ -189,8 +206,16 @@ void OnIdle()
 
 
 void initObjects() {
-    objects[0] = new Cylinder(100, 3., 0.2, 0.);
-    objects[0]->add_shape(new Cylinder(100, 3., 0.2, 2.));
+    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0.);
+    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0.));
+    objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0.));
+    
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2.));
+    
+    
     objects[1] = new Cube(0.5, 2.0, 1.0, 0.0);
     objects[2] = new Cube(0.5, -2.0, 1.0, 0.0);
     objects[3] = new Cube(0.5, 0.0, 1.0, 2.0);

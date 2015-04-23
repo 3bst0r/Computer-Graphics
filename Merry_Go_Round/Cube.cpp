@@ -8,7 +8,9 @@ using namespace std;
 
 Cube::Cube(double size, double x_val, double y_val, double z_val) /* XYZ values of the cubes center and half of the edge length(size)*/
 : Shape(8, 12){
-	
+	center_x = x_val;
+	center_y = y_val;
+	center_z = z_val;
 	GLfloat vertex_buffer_data_tmp[] = { /* 8 cube vertices XYZ */
 		 (x_val - size), (y_val - size),  (z_val + size),
 		 (x_val + size), (y_val - size),  (z_val + size),
