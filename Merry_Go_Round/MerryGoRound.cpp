@@ -34,13 +34,13 @@ using namespace std;
  * 1-5: independently moving objects */
 
 /* Define handlers to vertex buffer objects */
-GLuint VBO[6];
+GLuint VBO[5];
 
 /* Define handlers to color buffer objects */
-GLuint CBO[6];
+GLuint CBO[5];
 
 /* Define handlers to index buffer objects */
-GLuint IBO[6];
+GLuint IBO[5];
 
 
 /* Indices to vertex attributes; in this case positon and color */ 
@@ -54,13 +54,13 @@ GLuint ShaderProgram;
 
 Transformation ProjectionMatrix; /* Perspective projection matrix */
 Transformation ViewMatrix; /* Camera view matrix */ 
-Transformation ModelMatrix[6]; /* Model matrix */ 
+Transformation ModelMatrix[5]; /* Model matrix */
 Transformation InitialTransform;
 
 double height = 1;
 
 /* displayable objects */
-Shape **objects = new Shape*[6];
+Shape **objects = new Shape*[5];
 
 /*----------------------------------------------------------------*/
 
@@ -81,15 +81,31 @@ void Display()
     /* Clear window; color specified in 'Initialize()' */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    for (int i = 0; i < 6; i++) {
-		if(objects[i] == NULL)
-			continue;
+    /* Associate program with shader matrices */
+    GLint projectionUniform = glGetUniformLocation(ShaderProgram, "ProjectionMatrix");
+    if (projectionUniform == -1)
+    {
+        cerr << "Could not bind uniform ProjectionMatrix" << endl;
+        exit(-1);
+    }
+    glUniformMatrix4fv(projectionUniform, 1, GL_TRUE, ProjectionMatrix.matrix);
 
-        glEnableVertexAttribArray(vPosition);
+    GLint ViewUniform = glGetUniformLocation(ShaderProgram, "ViewMatrix");
+    if (ViewUniform == -1)
+    {
+        cerr << "Could not bind uniform ViewMatrix" << endl;
+        exit(-1);
+    }
+    glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix.matrix);
+
+    glEnableVertexAttribArray(vPosition);
+    glEnableVertexAttribArray(vColor);
+
+    for (int i = 0; i < 5; i++) {
+
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
         glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-        glEnableVertexAttribArray(vColor);
         glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
         glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[i]);
@@ -97,23 +113,6 @@ void Display()
         GLint size;
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
-        /* Associate program with shader matrices */
-        GLint projectionUniform = glGetUniformLocation(ShaderProgram, "ProjectionMatrix");
-        if (projectionUniform == -1)
-        {
-            cerr << "Could not bind uniform ProjectionMatrix" << endl;
-            exit(-1);
-        }
-        glUniformMatrix4fv(projectionUniform, 1, GL_TRUE, ProjectionMatrix.matrix);
-    
-		GLint ViewUniform = glGetUniformLocation(ShaderProgram, "ViewMatrix");
-		if (ViewUniform == -1) 
-		{
-			cerr << "Could not bind uniform ViewMatrix" << endl;
-			exit(-1);
-		}
-		glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix.matrix);
-   
 		GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
 		if (RotationUniform == -1) 
 		{
@@ -145,8 +144,7 @@ void Display()
 
 void OnIdle()
 {
-	// TODO here we have to set all the ModelMatrices for the independent objects
-    // remember to multiply them with ModelMatrix[0] so that they rotate with the housing
+
     float angle = (glutGet(GLUT_ELAPSED_TIME) / 1000.0) * (180.0/M_PI); 
     Transformation RotationMatrixAnim;
     Transformation TranslationMatrixAnim1;
@@ -209,27 +207,24 @@ void initObjects() {
     objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0.);
     objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0.));
     objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0.));
-    
+
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2.));
-    
-    
+
+
     objects[1] = new Cube(0.5, 2.0, 1.0, 0.0);
     objects[2] = new Cube(0.5, -2.0, 1.0, 0.0);
     objects[3] = new Cube(0.5, 0.0, 1.0, 2.0);
     objects[4] = new Cube(0.5, 0.0, 1.0, -2.0);
-    
-    /* TODO add all the stuff to the object[0] (housing), define independent objects */
 }
 
 void SetupDataBuffers() {
 
     /* initialize buffers for objects */
-    for (int i = 0; i < 6; i++) {
-		if(objects[i] == NULL)
-			continue;
+    for (int i = 0; i < 5; i++) {
+
         glGenBuffers(1, &VBO[i]);
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
         glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat),objects[i]->vertex_buffer_data, GL_STATIC_DRAW);
@@ -260,7 +255,7 @@ void AddShader(GLuint ShaderProgram, const char* ShaderCode, GLenum ShaderType)
     if (ShaderObj == 0) 
     {
         cerr << "Error creating shader type " << ShaderType << endl;
-        exit(0);
+        exit(-1);
     }
 
     /* Associate shader source code string with shader object */
@@ -357,8 +352,8 @@ void CreateShaderProgram()
 void Initialize(void)
 {   
     
-    /* Set background (clear) color to dark blue */ 
-    glClearColor(0.0, 0.0, 0.4, 0.0);
+    /* Set background (clear) color to black */
+    glClearColor(0, 0, 0, 0);
 
 	/* Setup Vertex array object */
 	GLuint VAO;
