@@ -395,6 +395,43 @@ void Initialize(void)
 	InitialTransform.translate(0, -sqrtf(sqrtf(2.0)), 0);
 }
 
+/******************************************************************
+*
+* Mouse
+*
+* Function is called on mouse button press; has been set
+* with glutMouseFunc(), x and y specify mouse coordinates,
+* but are not used here.
+*
+*******************************************************************/
+
+void Mouse(int button, int state, int x, int y) {
+
+    glutPostRedisplay();
+}
+
+
+/******************************************************************
+*
+* Keyboard
+*
+* Function to be called on key press in window; set by
+* glutKeyboardFunc(); x and y specify mouse position on keypress;
+* not used in this example
+*
+*******************************************************************/
+
+void Keyboard(unsigned char key, int x, int y)
+{
+    switch(key) {
+        case 'q': case 'Q':
+            exit(0);
+            break;
+    }
+
+    glutPostRedisplay();
+}
+
 
 /******************************************************************
 *
@@ -435,6 +472,9 @@ int main(int argc, char** argv)
      * handing control over to GLUT */
     glutIdleFunc(OnIdle);
     glutDisplayFunc(Display);
+    glutKeyboardFunc(Keyboard);
+    glutMouseFunc(Mouse);
+
     glutMainLoop();
 
     return EXIT_SUCCESS;
