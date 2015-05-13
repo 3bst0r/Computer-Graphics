@@ -21,7 +21,7 @@ using namespace std;
 * creates a cube object with the given specification
 *
 *******************************************************************/
-Cube::Cube(double size, double x_val, double y_val, double z_val) /* XYZ values of the cubes center and half of the edge length(size)*/
+Cube::Cube(float size, float x_val, float y_val, float z_val) /* XYZ values of the cubes center and half of the edge length(size)*/
 : Shape(8, 12){
 	center_x = x_val;
 	center_y = y_val;
