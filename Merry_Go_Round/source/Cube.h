@@ -11,7 +11,7 @@
 	
 	class Cube : public Shape {
 		public:
-			Cube(double size, double x_val, double y_val, double z_val);
+			Cube(float size, float x_val, float y_val, float z_val);
 			~Cube();
 	};
 	
