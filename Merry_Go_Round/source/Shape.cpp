@@ -20,7 +20,7 @@ using namespace std;
 *
 *******************************************************************/
 Shape::Shape(int vertex_number, int triangle_number){
-	cout << "Creating form with: vertex_number " << vertex_number << " triangle_number: " << triangle_number << endl;
+	//cout << "Creating form with: vertex_number " << vertex_number << " triangle_number: " << triangle_number << endl;
 	this->vertex_number = vertex_number;
 	this->triangle_number = triangle_number;
 	vertex_buffer_data = (GLfloat*)malloc(3 * vertex_number * sizeof(GLfloat));

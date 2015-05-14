@@ -26,6 +26,8 @@
 #include "Shape.h"
 #include "Cylinder.h"
 #include "Cube.h"
+#include "Model.h"
+#include "OBJParser.h"
 
 using namespace std;
 
@@ -324,12 +326,13 @@ void OnIdle()
 			TranslationMatrixAnim4.rotateY(-5 * angle);
 			TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
 		}
-		    /* Apply model rotation; finally move cube down */
-    ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
-    ModelMatrix[1].set_transformation(TranslationMatrixAnim1.matrix);
-    ModelMatrix[2].set_transformation(TranslationMatrixAnim2.matrix);
-    ModelMatrix[3].set_transformation(TranslationMatrixAnim3.matrix);
-    ModelMatrix[4].set_transformation(TranslationMatrixAnim4.matrix);
+		
+		/* Apply model rotation; finally move cube down */
+		ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
+		ModelMatrix[1].set_transformation(TranslationMatrixAnim1.matrix);
+		ModelMatrix[2].set_transformation(TranslationMatrixAnim2.matrix);
+		ModelMatrix[3].set_transformation(TranslationMatrixAnim3.matrix);
+		ModelMatrix[4].set_transformation(TranslationMatrixAnim4.matrix);
 	}
 
     /* Request redrawing of window content */
@@ -357,10 +360,17 @@ void initObjects() {
   
     
     /* create the 4 cubes */
-    objects[1] = new Cube(0.5, 2.0, 1.0, 0.0);
-    objects[2] = new Cube(0.5, -2.0, 1.0, 0.0);
-    objects[3] = new Cube(0.5, 0.0, 1.0, 2.0);
-    objects[4] = new Cube(0.5, 0.0, 1.0, -2.0);
+    obj_scene_data horse;
+    /* Load horse OBJ model */
+    char filename[] = "models/horse.obj";
+    if(!parse_obj_scene(&horse, filename)){
+        cerr << "Could not load file. Exiting." << endl;
+        exit(EXIT_FAILURE);
+	}
+    objects[1] = new Model(horse, 2., 0.4, 0., .6);
+    objects[2] = new Model(horse, -2., 0.4, 0., .6);
+    objects[3] = new Model(horse, 0., 0.4, 2., .6);
+    objects[4] = new Model(horse, 0., 0.4, -2., .6);
 }
 
 /******************************************************************
@@ -502,7 +512,6 @@ void CreateShaderProgram()
 
 void Initialize(void)
 {   
-    
     /* Set background (clear) color to black */
     glClearColor(0, 0, 0, 0);
 
