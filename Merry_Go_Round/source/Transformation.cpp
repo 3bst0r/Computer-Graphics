@@ -201,5 +201,3 @@ void SetPerspectiveMatrix(float fov, float aspect, float nearPlane,
 
     memcpy(result, temp, 16*sizeof(float));
 }
-
-
