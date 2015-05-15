@@ -232,9 +232,9 @@ void Keyboard(unsigned char key, int x, int y)
     switch(camera_mode) {
         case AUTO:
             switch(key){
-				case 'w': auto_speed += 5;
+				case 'w': auto_speed += 0.0001;
 						  break;
-				case 's': auto_speed -= 5;
+				case 's': auto_speed -= 0.0001;
 						  break;
 			}
             break;
@@ -371,8 +371,7 @@ void OnIdle()
 		Transformation TranslationMatrixAnim4;
 		
 		if(camera_mode == AUTO){
-			camera.rotateAroundCenter(angle / 10000 * auto_speed, glm::vec3(0,1,0));
-			//camera.focusOnCenter();
+			camera.rotateAroundCenter(angle * auto_speed, glm::vec3(0,1,0));
 		}
 
 		RotationMatrixAnim.rotateY(angle);
