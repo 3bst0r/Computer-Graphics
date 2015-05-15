@@ -678,6 +678,7 @@ int main(int argc, char** argv)
      * handing control over to GLUT */
     glutIdleFunc(OnIdle);
     glutDisplayFunc(Display);
+    glutMouseFunc(Mouse);
     glutKeyboardFunc(Keyboard);
     glutSpecialFunc(KeyboardSpecialKeys);
     glutKeyboardUpFunc(KeyboardUp);

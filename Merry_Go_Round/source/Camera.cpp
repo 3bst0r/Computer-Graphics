@@ -7,8 +7,11 @@
 #include <iostream>
 #include "Camera.h"
 #include "Transformation.h"
+#define GLM_FORCE_RADIANS
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp"
+#include "../glm/gtx/string_cast.hpp"
+
 
 using namespace std;
 
@@ -24,7 +27,7 @@ Camera::Camera(glm::vec3 camera_pos) {
 /* translate value along normalized u, v or w */
 void Camera::translate(glm::vec3 axis, float value) {
     glm::mat4 eye_transformation = glm::translate(glm::mat4(1),value * axis);
-    viewMatrix = glm::inverse(eye_transformation) * viewMatrix;
+    viewMatrix = glm::translate(viewMatrix,-(value * axis));
     eye = glm::vec3(eye_transformation * glm::vec4(eye,1));
 }
 
@@ -54,7 +57,6 @@ void Camera::rotate(float degree, glm::vec3 axis) {
     w = glm::normalize(glm::vec3(eye_transformation * glm::vec4(w,0)));
     viewMatrix = glm::inverse(eye_transformation) * viewMatrix;
 }
-
 
 void Camera::rotateAroundCenter(float degree,glm::vec3 axis) {
     glm::mat4 eye_transformation = glm::translate(glm::mat4(1),ctr-eye);

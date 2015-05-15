@@ -18,3 +18,5 @@ MANUAL Mode (first person mode):
 SEMI-AUTO Mode:
 	Translate the camera just like in manual mode.
 	By using the arrow keys the camera moves in a circle around the center.
+
+You can always reset the camera by pressing '0'.
