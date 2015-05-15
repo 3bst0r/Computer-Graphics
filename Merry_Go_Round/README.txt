@@ -1,7 +1,8 @@
 Change Mode:
 	AUTO (Press 1)
 	SEMI-AUTO (Press 2)
-	MANUAL (Press 3)
+	MANUAL (Press 3)	# default
+
 
 AUTO Mode:
 	By pressing 'w' you can increase the speed.
@@ -9,3 +10,11 @@ AUTO Mode:
 	If the speed is greater than zero the camera will move along a circle around the center of the merry-go-round.
 	If the speed is less than zero the camera will change the direction of the camera path.
 	If the speed is zero the camera will stay at the current position.
+
+MANUAL Mode (first person mode):
+	You can translate the camera along its own coordinate system by using WASD.
+	Look around by using the arrow keys.
+
+SEMI-AUTO Mode:
+	Translate the camera just like in manual mode.
+	By using the arrow keys the camera moves in a circle around the center.
