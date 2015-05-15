@@ -8,17 +8,20 @@
 *
 *******************************************************************/
 
-
 /* Standard includes */
 #include <iostream>
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
 
+#define GLM_FORCE_RADIANS
+
 /* OpenGL includes */
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 /* Local includes */
 #include "LoadShader.h"   /* Provides loading function for shader code */
@@ -28,6 +31,9 @@
 #include "Cube.h"
 #include "Model.h"
 #include "OBJParser.h"
+#include "Camera.h"
+
+
 
 using namespace std;
 
@@ -48,7 +54,7 @@ GLuint CBO[5];
 GLuint IBO[5];
 
 /* Variables for storing current rotation angles */
-float angleX, angleY, angleZ = 0.0f; 
+float angleX, angleY, angleZ = 0.0f;
 
 /* Indices to active rotation axes */
 enum {Xaxis=0, Yaxis=1, Zaxis=2};
@@ -68,6 +74,7 @@ Transformation ViewMatrix; /* Camera view matrix */
 Transformation ModelMatrix[5]; /* Model matrix */
 Transformation IdentityMatrix;
 Transformation InitialTransform;
+Camera camera(glm::vec3(0,0,10));
 
 double height = 1;
 
@@ -108,7 +115,7 @@ void Display()
         cerr << "Could not bind uniform ViewMatrix" << endl;
         exit(-1);
     }
-    glUniformMatrix4fv(ViewUniform, 1, GL_TRUE, ViewMatrix.matrix);
+    glUniformMatrix4fv(ViewUniform, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
 
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
@@ -157,21 +164,23 @@ void Display()
 
 void Mouse(int button, int state, int x, int y) 
 {
-    if(state == GLUT_DOWN) 
+
+
+    if(state == GLUT_DOWN)
     {
       /* Depending on button pressed, set rotation axis,
        * turn on animation */
-        switch(button) 
+        switch(button)
 	{
-	    case GLUT_LEFT_BUTTON:    
+	    case GLUT_LEFT_BUTTON:
 	        axis = Xaxis;
 		break;
 
-	    case GLUT_MIDDLE_BUTTON:  
+	    case GLUT_MIDDLE_BUTTON:
   	        axis = Yaxis;
 	        break;
-		
-	    case GLUT_RIGHT_BUTTON: 
+
+	    case GLUT_RIGHT_BUTTON:
 	        axis = Zaxis;
 		break;
 	}
@@ -197,19 +206,34 @@ void Keyboard(unsigned char key, int x, int y)
 	/* Toggle animation */
 	case '0':
 		if (anim)
-			anim = GL_FALSE;		
+			anim = GL_FALSE;
 		else
 			anim = GL_TRUE;
 		break;
 
 	/* Reset initial rotation of object */
-	case 'o':
-
+    case 'o':
 	    angleX = 0.0;
 	    angleY = 0.0;
 	    angleZ = 0.0;
 	    break;
-	    
+
+    case 'w':
+        camera.forward(0.1);
+        break;
+
+    case 'a':
+        camera.left(0.1);
+        break;
+
+    case 's':
+        camera.back(0.1);
+        break;
+
+    case 'd':
+        camera.right(0.1);
+        break;
+
 	case 'q': case 'Q':  
 	    exit(0);    
 		break;
@@ -217,6 +241,27 @@ void Keyboard(unsigned char key, int x, int y)
 
     glutPostRedisplay();
 }
+
+void KeyboardSpecialKeys(int key, int xp, int yp) {
+    glm::vec3 x(1,0,0);
+    glm::vec3 y(0,1,0);
+    glm::vec3 z(0,0,1);
+    switch(key) {
+        case GLUT_KEY_UP :
+            camera.rotate(1,x);
+             break;
+        case GLUT_KEY_DOWN :
+            camera.rotate(-1,x);
+            break;
+        case GLUT_KEY_LEFT :
+            camera.rotate(-1,z);
+            break;
+        case GLUT_KEY_RIGHT:
+            camera.rotate(1,z);
+            break;
+    }
+}
+
 
 /******************************************************************
 *
@@ -231,102 +276,102 @@ void OnIdle()
 
     /* rotation */
     if(anim){
-		
-		float angle = (glutGet(GLUT_ELAPSED_TIME) / 1000.0) * (180.0/M_PI); 
+
+		float angle = (glutGet(GLUT_ELAPSED_TIME) / 1000.0) * (180.0/M_PI);
 		Transformation RotationMatrixAnim;
 		Transformation TranslationMatrixAnim1;
 		Transformation TranslationMatrixAnim2;
 		Transformation TranslationMatrixAnim3;
 		Transformation TranslationMatrixAnim4;
-		
+
 		if(axis == Xaxis){
-			
+
 			RotationMatrixAnim.rotateX(angle);
 			RotationMatrixAnim.multiply(InitialTransform.matrix);
-			
+
 			TranslationMatrixAnim1.translate(0.0, cos(angle/50)/5., 0.0);
 			TranslationMatrixAnim1.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim1.translate(objects[1]->center_x, objects[1]->center_y, objects[1]->center_z);
 			TranslationMatrixAnim1.rotateY(5 * angle);
 			TranslationMatrixAnim1.translate(-objects[1]->center_x, -objects[1]->center_y, -objects[1]->center_z);
-			
+
 			TranslationMatrixAnim2.translate(0.0, cos(angle/50.)/5., 0.0);
 			TranslationMatrixAnim2.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim2.translate(objects[2]->center_x, objects[2]->center_y, objects[2]->center_z);
 			TranslationMatrixAnim2.rotateY(5 * angle);
 			TranslationMatrixAnim2.translate(-objects[2]->center_x, -objects[2]->center_y, -objects[2]->center_z);
-			
+
 			TranslationMatrixAnim3.translate(0.0, sin(angle/50.)/5., 0.0);
 			TranslationMatrixAnim3.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim3.translate(objects[3]->center_x, objects[3]->center_y, objects[3]->center_z);
 			TranslationMatrixAnim3.rotateY(-5 * angle);
 			TranslationMatrixAnim3.translate(-objects[3]->center_x, -objects[3]->center_y, -objects[3]->center_z);
-			
+
 			TranslationMatrixAnim4.translate(0.0, sin(angle/50.)/5., 0.0);
 			TranslationMatrixAnim4.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim4.translate(objects[4]->center_x, objects[4]->center_y, objects[4]->center_z);
 			TranslationMatrixAnim4.rotateY(-5 * angle);
 			TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
-			
+
 		}else if(axis == Yaxis){
-			
+
 			RotationMatrixAnim.rotateY(angle);
 			RotationMatrixAnim.multiply(InitialTransform.matrix);
-			
+
 			TranslationMatrixAnim1.translate(0.0, cos(angle/50)/5., 0.0);
 			TranslationMatrixAnim1.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim1.translate(objects[1]->center_x, objects[1]->center_y, objects[1]->center_z);
 			TranslationMatrixAnim1.rotateY(5 * angle);
 			TranslationMatrixAnim1.translate(-objects[1]->center_x, -objects[1]->center_y, -objects[1]->center_z);
-			
+
 			TranslationMatrixAnim2.translate(0.0, cos(angle/50.)/5., 0.0);
 			TranslationMatrixAnim2.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim2.translate(objects[2]->center_x, objects[2]->center_y, objects[2]->center_z);
 			TranslationMatrixAnim2.rotateY(5 * angle);
 			TranslationMatrixAnim2.translate(-objects[2]->center_x, -objects[2]->center_y, -objects[2]->center_z);
-			
+
 			TranslationMatrixAnim3.translate(0.0, sin(angle/50.)/5., 0.0);
 			TranslationMatrixAnim3.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim3.translate(objects[3]->center_x, objects[3]->center_y, objects[3]->center_z);
 			TranslationMatrixAnim3.rotateY(-5 * angle);
 			TranslationMatrixAnim3.translate(-objects[3]->center_x, -objects[3]->center_y, -objects[3]->center_z);
-			
+
 			TranslationMatrixAnim4.translate(0.0, sin(angle/50.)/5., 0.0);
 			TranslationMatrixAnim4.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim4.translate(objects[4]->center_x, objects[4]->center_y, objects[4]->center_z);
 			TranslationMatrixAnim4.rotateY(-5 * angle);
 			TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
-			
+
 		}else if(axis == Zaxis){
-			
+
 			RotationMatrixAnim.rotateZ(angle);
-			RotationMatrixAnim.multiply(InitialTransform.matrix);	
-			
+			RotationMatrixAnim.multiply(InitialTransform.matrix);
+
 			TranslationMatrixAnim1.translate(0.0, cos(angle/50)/5., 0.0);
 			TranslationMatrixAnim1.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim1.translate(objects[1]->center_x, objects[1]->center_y, objects[1]->center_z);
 			TranslationMatrixAnim1.rotateY(5 * angle);
 			TranslationMatrixAnim1.translate(-objects[1]->center_x, -objects[1]->center_y, -objects[1]->center_z);
-			
+
 			TranslationMatrixAnim2.translate(0.0, cos(angle/50.)/5., 0.0);
 			TranslationMatrixAnim2.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim2.translate(objects[2]->center_x, objects[2]->center_y, objects[2]->center_z);
 			TranslationMatrixAnim2.rotateY(5 * angle);
 			TranslationMatrixAnim2.translate(-objects[2]->center_x, -objects[2]->center_y, -objects[2]->center_z);
-			
+
 			TranslationMatrixAnim3.translate(0.0, sin(angle/50.)/5., 0.0);
 			TranslationMatrixAnim3.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim3.translate(objects[3]->center_x, objects[3]->center_y, objects[3]->center_z);
 			TranslationMatrixAnim3.rotateY(-5 * angle);
 			TranslationMatrixAnim3.translate(-objects[3]->center_x, -objects[3]->center_y, -objects[3]->center_z);
-			
+
 			TranslationMatrixAnim4.translate(0.0, sin(angle/50.)/5., 0.0);
 			TranslationMatrixAnim4.multiply(RotationMatrixAnim.matrix);
 			TranslationMatrixAnim4.translate(objects[4]->center_x, objects[4]->center_y, objects[4]->center_z);
 			TranslationMatrixAnim4.rotateY(-5 * angle);
 			TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
 		}
-		
+
 		/* Apply model rotation; finally move cube down */
 		ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
 		ModelMatrix[1].set_transformation(TranslationMatrixAnim1.matrix);
@@ -512,6 +557,7 @@ void CreateShaderProgram()
 
 void Initialize(void)
 {   
+    
     /* Set background (clear) color to black */
     glClearColor(0, 0, 0, 0);
 
@@ -532,16 +578,14 @@ void Initialize(void)
 
     /* Set projection transform */
     float fovy = 45.0;
-    float aspect = 2.0;
+    float aspect = 1.0;
     float nearPlane = 1.0; 
     float farPlane = 50.0;
     float temp[16];
     SetPerspectiveMatrix(fovy, aspect, nearPlane, farPlane, temp);
 	ProjectionMatrix.set_transformation(temp);
 
-    /* Set viewing transform */
-    float camera_disp = -10.0;
-    ViewMatrix.translate(0.0, 0.0, camera_disp);
+    ViewMatrix.translate(0,0,-10);
 
     /* Initial transformation matrix */
 	InitialTransform.translate(0, -sqrtf(sqrtf(2.0)), 0);
@@ -582,12 +626,12 @@ int main(int argc, char** argv)
     /* Setup scene and rendering parameters */
     Initialize();
 
-
-    /* Specify callback functions;enter GLUT event processing loop, 
+    /* Specify callback functions;enter GLUT event processing loop,
      * handing control over to GLUT */
     glutIdleFunc(OnIdle);
     glutDisplayFunc(Display);
-    glutKeyboardFunc(Keyboard); 
+    glutKeyboardFunc(Keyboard);
+    glutSpecialFunc(KeyboardSpecialKeys);
     glutMouseFunc(Mouse);  
     glutMainLoop();
 
