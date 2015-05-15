@@ -35,6 +35,11 @@
 #include "Camera.h"
 #include "CameraMode.h"
 
+/* necessary because GLUT_KEY_something int codes overlap with wasd */
+#define mARROW_LEFT -2
+#define mARROW_UP -3
+#define mARROW_RIGHT -4
+#define mARROW_DOWN -5
 
 
 using namespace std;
@@ -81,7 +86,8 @@ Transformation IdentityMatrix;
 Transformation InitialTransform;
 Camera camera(glm::vec3(0,0,10));
 enum CameraMode camera_mode = MANUAL;
-
+int currentKey = -1;
+long t = glutGet(GLUT_ELAPSED_TIME);
 /* camera mode auto stuff */
 double auto_speed;
 
@@ -224,7 +230,7 @@ void Keyboard(unsigned char key, int x, int y)
             return;
         case '2':
             camera_mode = SEMI;
-            cout << "SEMI-AUTO (fixed focus)" << endl;
+            cout << "SEMI-AUTO (fixed center)" << endl;
             return;
         case '3':
             camera_mode = MANUAL;
@@ -232,110 +238,42 @@ void Keyboard(unsigned char key, int x, int y)
             return;
     }
 
-    switch(camera_mode) {
-        case AUTO:
+   if (camera_mode == AUTO) {
             switch(key){
 				case 'w': auto_speed += 0.0001;
 						  break;
 				case 's': auto_speed -= 0.0001;
 						  break;
 			}
-            break;
-        case SEMI:
-            switch( key )
-            {
-                case 'w':
-                    camera.forward(0.1);
-                    break;
-
-                case 'a':
-                    camera.left(0.1);
-                    break;
-
-                case 's':
-                    camera.back(0.1);
-                    break;
-
-                case 'd':
-                    camera.right(0.1);
-                    break;
-
-                case 'q': case 'Q':
-                    exit(0);
-                    break;
-            }
-            break;
-        case MANUAL:
-            switch( key )
-            {
-                case 'w':
-                    camera.forward(0.1);
-                    break;
-
-                case 'a':
-                    camera.left(0.1);
-                    break;
-
-                case 's':
-                    camera.back(0.1);
-                    break;
-
-                case 'd':
-                    camera.right(0.1);
-                    break;
-
-                case 'q': case 'Q':
-                    exit(0);
-                    break;
-            }
-
-            break;
     }
 
-
-    glutPostRedisplay();
+    currentKey = key;
 }
 
 void KeyboardSpecialKeys(int key, int xp, int yp) {
-    switch(camera_mode) {
-        case AUTO:
-            // nothing
-            break;
-        case SEMI:
-            switch (key) {
-                case GLUT_KEY_UP :
-                    camera.rotateAroundCenter(-1,camera.u);
-                    break;
-                case GLUT_KEY_DOWN :
-                    camera.rotateAroundCenter(1,camera.u);
-                    break;
-                case GLUT_KEY_LEFT :
-                    camera.rotateAroundCenter(-1,camera.v);
-                    break;
-                case GLUT_KEY_RIGHT:
-                    camera.rotateAroundCenter(1,camera.v);
-                    break;
-            }
-            break;
-        case MANUAL:
-            switch (key) {
-                case GLUT_KEY_UP :
-                    camera.rotate(1,camera.u);
-                    break;
-                case GLUT_KEY_DOWN :
-                    camera.rotate(-1,camera.u);
-                    break;
-                case GLUT_KEY_LEFT :
-                    camera.rotate(1,camera.v);
-                    break;
-                case GLUT_KEY_RIGHT:
-                    camera.rotate(-1,camera.v);
-                    break;
-            }
-            break;
+    switch(key) {
+        case GLUT_KEY_UP:
+            currentKey = mARROW_UP;
+            return;
+        case GLUT_KEY_LEFT:
+            currentKey = mARROW_LEFT;
+            return;
+        case GLUT_KEY_RIGHT:
+            currentKey = mARROW_RIGHT;
+            return;
+        case GLUT_KEY_DOWN:
+            currentKey = mARROW_DOWN;
+            return;
     }
 }
 
+void KeyboardUp(unsigned char key, int x, int y) {
+    currentKey = -1;
+}
+
+void KeyboardSpecialUp(int key, int x, int y) {
+    currentKey = -1;
+}
 
 /******************************************************************
 *
@@ -347,6 +285,82 @@ void KeyboardSpecialKeys(int key, int xp, int yp) {
 
 void OnIdle()
 {
+    int degrees_per_sec = 25;
+    int units_per_sec = 6;// for translation
+    float dt = (glutGet(GLUT_ELAPSED_TIME) -t)/1000.; // elapsed time in seconds
+    t = glutGet(GLUT_ELAPSED_TIME);
+    /* camera transformation */
+    switch(currentKey) {
+        case 'q':
+        case 'Q':
+            exit(0);
+    }
+    switch(camera_mode) {
+        case AUTO:
+            break;
+        case SEMI:
+            switch (currentKey) {
+                case 'w':
+                    camera.forward(dt*units_per_sec);
+                    break;
+
+                case 'a':
+                    camera.left(dt*units_per_sec);
+                    break;
+
+                case 's':
+                    camera.back(dt*units_per_sec);
+                    break;
+
+                case 'd':
+                    camera.right(dt*units_per_sec);
+                    break;
+                case mARROW_UP :
+                    camera.rotateAroundCenter(-degrees_per_sec*dt,camera.u);
+                    break;
+                case mARROW_DOWN :
+                    camera.rotateAroundCenter(degrees_per_sec*dt,camera.u);
+                    break;
+                case mARROW_LEFT :
+                    camera.rotateAroundCenter(-degrees_per_sec*dt,camera.v);
+                    break;
+                case mARROW_RIGHT:
+                    camera.rotateAroundCenter(degrees_per_sec*dt,camera.v);
+                    break;
+            }
+            break;
+        case MANUAL:
+            switch (currentKey) {
+                case 'w':
+                    camera.forward(dt*units_per_sec);
+                    break;
+
+                case 'a':
+                    camera.left(dt*units_per_sec);
+                    break;
+
+                case 's':
+                    camera.back(dt*units_per_sec);
+                    break;
+
+                case 'd':
+                    camera.right(dt*units_per_sec);
+                    break;
+
+                case mARROW_UP :
+                    camera.rotate(degrees_per_sec*dt,camera.u);
+                    break;
+                case mARROW_DOWN :
+                    camera.rotate(-degrees_per_sec*dt,camera.u);
+                    break;
+                case mARROW_LEFT :
+                    camera.rotate(degrees_per_sec*dt,camera.v);
+                    break;
+                case mARROW_RIGHT:
+                    camera.rotate(-degrees_per_sec*dt,camera.v);
+                    break;
+            }
+    }
 
     /* rotation */
     if(anim){
@@ -666,6 +680,8 @@ int main(int argc, char** argv)
     glutDisplayFunc(Display);
     glutKeyboardFunc(Keyboard);
     glutSpecialFunc(KeyboardSpecialKeys);
+    glutKeyboardUpFunc(KeyboardUp);
+    glutSpecialUpFunc(KeyboardSpecialUp);
     glutMainLoop();
 
     return EXIT_SUCCESS;
