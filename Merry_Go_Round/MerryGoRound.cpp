@@ -448,8 +448,8 @@ void initObjects() {
     objects[3] = new Model(horse, 0., 0.4, 2., .6);
     objects[4] = new Model(horse, 0., 0.4, -2., .6);
     
-    room_components[0] = new Block(0.0, 3.0, -4.0, 10.0, 12.0, 0.1);
-    room_components[0]->add_shape(new Block(0.0, -2.0, 3.0, 0.1, 12.0, 14.0));
+    room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
+    room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
 }
 
 /******************************************************************
