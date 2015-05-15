@@ -183,6 +183,41 @@ void Display()
     glutSwapBuffers();
 }
 
+void Mouse(int button, int state, int x, int y)
+{
+
+    switch(button) {
+        case 3:
+            camera.forward(0.1);
+            break;
+        case 4:
+            camera.back(0.1);
+            break;
+    }
+
+    if(state == GLUT_DOWN)
+    {
+      /* Depending on button pressed, set rotation axis,
+       * turn on animation */
+        switch(button)
+	{
+	    case GLUT_LEFT_BUTTON:
+	        axis = Xaxis;
+		break;
+
+	    case GLUT_MIDDLE_BUTTON:
+  	        axis = Yaxis;
+	        break;
+
+	    case GLUT_RIGHT_BUTTON:
+	        axis = Zaxis;
+		break;
+	}
+	anim = GL_TRUE;
+    }
+}
+
+
 /******************************************************************
 *
 * Keyboard
