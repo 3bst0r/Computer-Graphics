@@ -164,9 +164,17 @@ void Display()
 *
 *******************************************************************/
 
-void Mouse(int button, int state, int x, int y) 
+void Mouse(int button, int state, int x, int y)
 {
 
+    switch(button) {
+        case 3:
+            camera.forward(0.1);
+            break;
+        case 4:
+            camera.back(0.1);
+            break;
+    }
 
     if(state == GLUT_DOWN)
     {
