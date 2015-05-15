@@ -214,6 +214,9 @@ void Keyboard(unsigned char key, int x, int y)
 {
     /* switch camera mode */
     switch(key) {
+        case '0':
+            camera = Camera(glm::vec3(0,0,10));
+            return;
         case '1':
             camera_mode = AUTO;
             auto_speed = 0.;
@@ -241,14 +244,6 @@ void Keyboard(unsigned char key, int x, int y)
         case SEMI:
             switch( key )
             {
-                /* Toggle animation */
-                case '0':
-                    if (anim)
-                        anim = GL_FALSE;
-                    else
-                        anim = GL_TRUE;
-                    break;
-
                 case 'w':
                     camera.forward(0.1);
                     break;
@@ -273,13 +268,6 @@ void Keyboard(unsigned char key, int x, int y)
         case MANUAL:
             switch( key )
             {
-                /* Toggle animation */
-                case '0':
-                    if (anim)
-                        anim = GL_FALSE;
-                    else
-                        anim = GL_TRUE;
-                    break;
                 case 'w':
                     camera.forward(0.1);
                     break;
