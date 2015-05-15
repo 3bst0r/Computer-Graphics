@@ -32,6 +32,7 @@
 #include "Model.h"
 #include "OBJParser.h"
 #include "Camera.h"
+#include "CameraMode.h"
 
 
 
@@ -75,6 +76,7 @@ Transformation ModelMatrix[5]; /* Model matrix */
 Transformation IdentityMatrix;
 Transformation InitialTransform;
 Camera camera(glm::vec3(0,0,10));
+enum CameraMode camera_mode = MANUAL;
 
 double height = 1;
 
@@ -201,60 +203,145 @@ void Mouse(int button, int state, int x, int y)
 
 void Keyboard(unsigned char key, int x, int y)   
 {
-    switch( key ) 
-    {
-	/* Toggle animation */
-	case '0':
-		if (anim)
-			anim = GL_FALSE;
-		else
-			anim = GL_TRUE;
-		break;
-
-	/* Reset initial rotation of object */
-    case 'o':
-	    angleX = 0.0;
-	    angleY = 0.0;
-	    angleZ = 0.0;
-	    break;
-
-    case 'w':
-        camera.forward(0.1);
-        break;
-
-    case 'a':
-        camera.left(0.1);
-        break;
-
-    case 's':
-        camera.back(0.1);
-        break;
-
-    case 'd':
-        camera.right(0.1);
-        break;
-
-	case 'q': case 'Q':  
-	    exit(0);    
-		break;
+    /* switch camera mode */
+    switch(key) {
+        case '1':
+            camera_mode = AUTO;
+            cout << "AUTO\n";
+            return;
+        case '2':
+            camera_mode = SEMI;
+            cout << "SEMI-AUTO (fixed focus)\n";
+            return;
+        case '3':
+            camera_mode = MANUAL;
+            cout << "MANUAL (first person)\n";
+            return;
     }
+
+    switch(camera_mode) {
+        case AUTO:
+            // TODO implement
+            break;
+        case SEMI:
+            switch( key )
+            {
+                /* Toggle animation */
+                case '0':
+                    if (anim)
+                        anim = GL_FALSE;
+                    else
+                        anim = GL_TRUE;
+                    break;
+
+                case 'o':
+                    angleX = 0.0;
+                    angleY = 0.0;
+                    angleZ = 0.0;
+                    break;
+
+                case 'w':
+                    camera.forward(0.1);
+                    break;
+
+                case 'a':
+                    camera.left(0.1);
+                    break;
+
+                case 's':
+                    camera.back(0.1);
+                    break;
+
+                case 'd':
+                    camera.right(0.1);
+                    break;
+
+                case 'q': case 'Q':
+                    exit(0);
+                    break;
+            }
+            break;
+        case MANUAL:
+            switch( key )
+            {
+                /* Toggle animation */
+                case '0':
+                    if (anim)
+                        anim = GL_FALSE;
+                    else
+                        anim = GL_TRUE;
+                    break;
+
+                case 'o':
+                    angleX = 0.0;
+                    angleY = 0.0;
+                    angleZ = 0.0;
+                    break;
+
+                case 'w':
+                    camera.forward(0.1);
+                    break;
+
+                case 'a':
+                    camera.left(0.1);
+                    break;
+
+                case 's':
+                    camera.back(0.1);
+                    break;
+
+                case 'd':
+                    camera.right(0.1);
+                    break;
+
+                case 'q': case 'Q':
+                    exit(0);
+                    break;
+            }
+
+            break;
+    }
+
 
     glutPostRedisplay();
 }
 
 void KeyboardSpecialKeys(int key, int xp, int yp) {
-    switch(key) {
-        case GLUT_KEY_UP :
-            camera.rotateU(1);
-             break;
-        case GLUT_KEY_DOWN :
-            camera.rotateU(-1);
+    switch(camera_mode) {
+        case AUTO:
+            // TODO implement
             break;
-        case GLUT_KEY_LEFT :
-            camera.rotateV(1);
+        case SEMI:
+            switch (key) {
+                case GLUT_KEY_UP :
+                    camera.rotateAroundCenter(-1,camera.u);
+                    break;
+                case GLUT_KEY_DOWN :
+                    camera.rotateAroundCenter(1,camera.u);
+                    break;
+                case GLUT_KEY_LEFT :
+                    camera.rotateAroundCenter(-1,camera.v);
+                    break;
+                case GLUT_KEY_RIGHT:
+                    camera.rotateAroundCenter(1,camera.v);
+                    break;
+            }
             break;
-        case GLUT_KEY_RIGHT:
-            camera.rotateV(-1);
+        case MANUAL:
+            switch (key) {
+                case GLUT_KEY_UP :
+                    camera.rotate(1,camera.u);
+                    break;
+                case GLUT_KEY_DOWN :
+                    camera.rotate(-1,camera.u);
+                    break;
+                case GLUT_KEY_LEFT :
+                    camera.rotate(1,camera.v);
+                    break;
+                case GLUT_KEY_RIGHT:
+                    camera.rotate(-1,camera.v);
+                    break;
+            }
             break;
     }
 }

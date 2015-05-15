@@ -10,11 +10,6 @@
 class Camera {
 public:
     Camera(glm::vec3 camera_pos);
-    enum CameraMode {
-        AUTO,
-        MANUAL
-    };
-
     glm::vec3 eye, ctr, u, v, w;
 
     /* the view matrix to be loaded into the shader */
@@ -25,10 +20,8 @@ public:
     void left(float value);
     void back(float value);
     void rotate(float degrees, glm::vec3 axis);
-    void rotateU(float degrees);
-    void rotateV(float degrees);
-    void rotateW(float degrees);
-    void rotateAroundCenter(float degrees);;
+    void rotateAroundCenter(float degrees,  glm::vec3 axis);
+    void focusOnCenter();
 };
 
 

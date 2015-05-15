@@ -16,17 +16,9 @@ Camera::Camera(glm::vec3 camera_pos) {
     eye = camera_pos;
     u = glm::vec3(1,0,0);
     v = glm::vec3(0,1,0);
-    w = glm::vec3(0,0,1);
+    w = glm::vec3(0,0,-1);
     ctr = glm::vec3(0,0,0);
-    w = glm::normalize(ctr - eye);
-    viewMatrix = glm::lookAt(eye,    /* Eye vector */
-                            ctr,     /* Viewing center */
-                            glm::vec3(0,1,0));    /* up vector */
-    /* define the local coordinate system */
-    glm::mat4 inv = glm::inverse(viewMatrix);
-    u = glm::normalize(glm::vec3(inv * glm::vec4(u,0)));
-    v = glm::normalize(glm::vec3(inv * glm::vec4(v,0)));
-    w = glm::normalize(glm::vec3(inv * glm::vec4(w,0)));
+    focusOnCenter();
 }
 
 /* translate value along normalized u, v or w */
@@ -61,20 +53,29 @@ void Camera::rotate(float degree, glm::vec3 axis) {
     viewMatrix = glm::inverse(eye_transformation) * viewMatrix;
 }
 
-void Camera::rotateU(float degree) {
-    rotate(degree,u);
+
+void Camera::rotateAroundCenter(float degree,glm::vec3 axis) {
+    glm::mat4 eye_transformation = glm::translate(glm::mat4(1),ctr-eye);
+    eye_transformation = glm::rotate(eye_transformation,glm::radians(degree),axis);
+    eye_transformation = glm::translate(eye_transformation,eye-ctr);
+
+    eye = glm::vec3(eye_transformation * glm::vec4(eye,1));
+    u = glm::normalize(glm::vec3(eye_transformation * glm::vec4(u,0)));
+    v = glm::normalize(glm::vec3(eye_transformation * glm::vec4(v,0)));
+    w = glm::normalize(glm::vec3(eye_transformation * glm::vec4(w,0)));
+    viewMatrix = glm::rotate(viewMatrix,-glm::radians(degree),axis);
 }
 
-void Camera::rotateV(float degree) {
-    rotate(degree,v);
+
+
+void Camera::focusOnCenter() {
+    viewMatrix = glm::lookAt(eye,    /* Eye vector */
+                             ctr,     /* Viewing center */
+                             glm::vec3(0,1,0));    /* up vector */
+    /* define the local coordinate system */
+    glm::mat4 inv = glm::inverse(viewMatrix);
+    u = glm::normalize(glm::vec3(inv * glm::vec4(u,0)));
+    v = glm::normalize(glm::vec3(inv * glm::vec4(v,0)));
+    w = glm::normalize(glm::vec3(inv * glm::vec4(w,0)));
 }
-
-void Camera::rotateW(float degree) {
-    rotate(degree,w);
-}
-
-void Camera::rotateAroundCenter(float degrees) {
-
-}
-
 
