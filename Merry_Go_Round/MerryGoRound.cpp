@@ -78,6 +78,9 @@ Transformation InitialTransform;
 Camera camera(glm::vec3(0,0,10));
 enum CameraMode camera_mode = MANUAL;
 
+/* camera mode auto stuff */
+double auto_speed;
+
 double height = 1;
 
 /* displayable objects */
@@ -207,21 +210,27 @@ void Keyboard(unsigned char key, int x, int y)
     switch(key) {
         case '1':
             camera_mode = AUTO;
-            cout << "AUTO\n";
+            auto_speed = 0.;
+            cout << "AUTO" << endl;
             return;
         case '2':
             camera_mode = SEMI;
-            cout << "SEMI-AUTO (fixed focus)\n";
+            cout << "SEMI-AUTO (fixed focus)" << endl;
             return;
         case '3':
             camera_mode = MANUAL;
-            cout << "MANUAL (first person)\n";
+            cout << "MANUAL (first person)" << endl;
             return;
     }
 
     switch(camera_mode) {
         case AUTO:
-            // TODO implement
+            switch(key){
+				case 'w': auto_speed += 5;
+						  break;
+				case 's': auto_speed -= 5;
+						  break;
+			}
             break;
         case SEMI:
             switch( key )
@@ -309,7 +318,7 @@ void Keyboard(unsigned char key, int x, int y)
 void KeyboardSpecialKeys(int key, int xp, int yp) {
     switch(camera_mode) {
         case AUTO:
-            // TODO implement
+            // nothing
             break;
         case SEMI:
             switch (key) {
@@ -367,6 +376,11 @@ void OnIdle()
 		Transformation TranslationMatrixAnim2;
 		Transformation TranslationMatrixAnim3;
 		Transformation TranslationMatrixAnim4;
+		
+		if(camera_mode == AUTO){
+			camera.rotateAroundCenter(angle / 10000 * auto_speed, glm::vec3(0,1,0));
+			//camera.focusOnCenter();
+		}
 
 		if(axis == Xaxis){
 

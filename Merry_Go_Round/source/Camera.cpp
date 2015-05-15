@@ -44,6 +44,8 @@ void Camera::right(float value) {
     translate(u,value);
 }
 
+//void Camera::move(Camera intit, float angle
+
 /* rotate around u, v or w */
 void Camera::rotate(float degree, glm::vec3 axis) {
     glm::mat4 eye_transformation = glm::rotate(glm::mat4(1),glm::radians(degree),axis);
