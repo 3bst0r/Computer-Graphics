@@ -243,21 +243,18 @@ void Keyboard(unsigned char key, int x, int y)
 }
 
 void KeyboardSpecialKeys(int key, int xp, int yp) {
-    glm::vec3 x(1,0,0);
-    glm::vec3 y(0,1,0);
-    glm::vec3 z(0,0,1);
     switch(key) {
         case GLUT_KEY_UP :
-            camera.rotate(1,x);
+            camera.rotateU(1);
              break;
         case GLUT_KEY_DOWN :
-            camera.rotate(-1,x);
+            camera.rotateU(-1);
             break;
         case GLUT_KEY_LEFT :
-            camera.rotate(-1,z);
+            camera.rotateV(1);
             break;
         case GLUT_KEY_RIGHT:
-            camera.rotate(1,z);
+            camera.rotateV(-1);
             break;
     }
 }

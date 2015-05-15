@@ -5,7 +5,6 @@
 #ifndef COMPUTER_GRAPHICS_CAMERA_H
 #define COMPUTER_GRAPHICS_CAMERA_H
 
-#include "Transformation.h"
 #include "../glm/glm.hpp"
 
 class Camera {
@@ -26,7 +25,10 @@ public:
     void left(float value);
     void back(float value);
     void rotate(float degrees, glm::vec3 axis);
-    void rotateAroundCenter(float degrees);
+    void rotateU(float degrees);
+    void rotateV(float degrees);
+    void rotateW(float degrees);
+    void rotateAroundCenter(float degrees);;
 };
 
 
