@@ -245,6 +245,7 @@ void Keyboard(unsigned char key, int x, int y)
         case '2':
             camera_mode = SEMI;
             cout << "SEMI-AUTO (fixed center)" << endl;
+            camera.focusOnCenter();
             return;
         case '3':
             camera_mode = MANUAL;
@@ -320,6 +321,7 @@ void OnIdle()
 
                 case 'a':
                     camera.left(dt*units_per_sec);
+                    camera.focusOnCenter();
                     break;
 
                 case 's':
@@ -328,18 +330,19 @@ void OnIdle()
 
                 case 'd':
                     camera.right(dt*units_per_sec);
+                    camera.focusOnCenter();
                     break;
                 case mARROW_UP :
-                    camera.rotateAroundCenter(-degrees_per_sec*dt,camera.u);
+                    camera.rotateAroundCenter(-degrees_per_sec*dt,glm::vec3(1,0,0));
                     break;
                 case mARROW_DOWN :
-                    camera.rotateAroundCenter(degrees_per_sec*dt,camera.u);
+                    camera.rotateAroundCenter(degrees_per_sec*dt,glm::vec3(1,0,00));
                     break;
                 case mARROW_LEFT :
-                    camera.rotateAroundCenter(-degrees_per_sec*dt,camera.v);
+                    camera.rotateAroundCenter(-degrees_per_sec*dt,glm::vec3(0,1,0));
                     break;
                 case mARROW_RIGHT:
-                    camera.rotateAroundCenter(degrees_per_sec*dt,camera.v);
+                    camera.rotateAroundCenter(degrees_per_sec*dt,glm::vec3(0,1,0));
                     break;
             }
             break;
