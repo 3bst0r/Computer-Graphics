@@ -87,6 +87,8 @@ Transformation InitialTransform;
 Camera camera(glm::vec3(0,0,10));
 enum CameraMode camera_mode = MANUAL;
 int currentKey = -1;
+int lastX = 0;
+int lastY = 0;
 long t = glutGet(GLUT_ELAPSED_TIME);
 /* camera mode auto stuff */
 double auto_speed;
@@ -133,7 +135,7 @@ void Display()
         cerr << "Could not bind uniform ViewMatrix" << endl;
         exit(-1);
     }
-    glUniformMatrix4fv(ViewUniform, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+    glUniformMatrix4fv(ViewUniform, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix()));
 
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
@@ -203,6 +205,18 @@ void Mouse(int button, int state, int x, int y)
             camera.back(0.1);
             break;
     }
+}
+
+void PassiveMouse(int x, int y) {
+    //static int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+    //static int centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+
+    int xOff = x - lastX;
+    int yOff = y - lastY;
+    lastX = x;
+    lastY = y;
+    camera.SetViewByMouse(xOff,yOff);
+    //glutWarpPointer(centerX, centerY);
 }
 
 
@@ -354,10 +368,10 @@ void OnIdle()
                     camera.rotate(-degrees_per_sec*dt,camera.u);
                     break;
                 case mARROW_LEFT :
-                    camera.rotate(degrees_per_sec*dt,camera.v);
+                    camera.rotate(degrees_per_sec*dt,glm::vec3(0,1,0));
                     break;
                 case mARROW_RIGHT:
-                    camera.rotate(-degrees_per_sec*dt,camera.v);
+                    camera.rotate(-degrees_per_sec*dt,glm::vec3(0,1,0));
                     break;
             }
     }
@@ -679,6 +693,7 @@ int main(int argc, char** argv)
     glutIdleFunc(OnIdle);
     glutDisplayFunc(Display);
     glutMouseFunc(Mouse);
+    glutPassiveMotionFunc(PassiveMouse);
     glutKeyboardFunc(Keyboard);
     glutSpecialFunc(KeyboardSpecialKeys);
     glutKeyboardUpFunc(KeyboardUp);

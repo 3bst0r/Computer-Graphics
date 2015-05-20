@@ -13,7 +13,6 @@ public:
     glm::vec3 eye, ctr, u, v, w;
 
     /* the view matrix to be loaded into the shader */
-    glm::mat4 viewMatrix;
     void translate(glm::vec3 axis, float value);
     void forward(float value);
     void right(float value);
@@ -22,6 +21,11 @@ public:
     void rotate(float degrees, glm::vec3 axis);
     void rotateAroundCenter(float degrees,  glm::vec3 axis);
     void focusOnCenter();
+    void SetViewByMouse(float xOffset, float yOffset);
+    glm::mat4 viewMatrix();
+private:
+    float mouseSpeed;
+    glm::vec3 up,_u,_v,_w;
 };
 
 
