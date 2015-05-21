@@ -16,7 +16,7 @@
 using namespace std;
 
 Camera::Camera(glm::vec3 camera_pos) {
-    mouseSpeed = 0.01;
+    mouseSpeed = 0.1;
     up = glm::vec3(0,1,0);
     eye = camera_pos;
     _u = glm::vec3(1,0,0);
@@ -68,7 +68,8 @@ void Camera::rotateAroundCenter(float degree,glm::vec3 axis) {
 }
 
 void Camera::SetViewByMouse(float xOffset, float yOffset) {
-
+    rotate(-xOffset * mouseSpeed, glm::vec3(0, 1, 0));
+    rotate(-yOffset * mouseSpeed, glm::vec3(1, 0, 0));
 }
 void Camera::focusOnCenter() {
     w = glm::normalize(ctr - eye);

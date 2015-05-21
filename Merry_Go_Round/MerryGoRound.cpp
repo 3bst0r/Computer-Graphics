@@ -208,15 +208,21 @@ void Mouse(int button, int state, int x, int y)
 }
 
 void PassiveMouse(int x, int y) {
-    //static int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
-    //static int centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+    static int centerX = glutGet(GLUT_WINDOW_WIDTH) / 2;
+    static int centerY = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+    static bool just_warped = false;
 
-    int xOff = x - lastX;
-    int yOff = y - lastY;
-    lastX = x;
-    lastY = y;
+    /* needed because glutWarpPointer creates a callback to this function, will hang the event loop */
+    if (just_warped) {
+        just_warped = false;
+        return;
+    }
+
+    int xOff = x - centerX;
+    int yOff = y - centerY;
     camera.SetViewByMouse(xOff,yOff);
-    //glutWarpPointer(centerX, centerY);
+    glutWarpPointer(centerX, centerY);
+    just_warped = true;
 }
 
 
@@ -697,6 +703,7 @@ int main(int argc, char** argv)
     glutDisplayFunc(Display);
     glutMouseFunc(Mouse);
     glutPassiveMotionFunc(PassiveMouse);
+    glutSetCursor(GLUT_CURSOR_NONE);
     glutKeyboardFunc(Keyboard);
     glutSpecialFunc(KeyboardSpecialKeys);
     glutKeyboardUpFunc(KeyboardUp);
