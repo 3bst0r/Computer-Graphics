@@ -7,6 +7,7 @@
 #include <iostream>
 #include "Camera.h"
 #include "Transformation.h"
+#include "CameraMode.h"
 #define GLM_FORCE_RADIANS
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp"
@@ -67,9 +68,19 @@ void Camera::rotateAroundCenter(float degree,glm::vec3 axis) {
     w = glm::normalize(glm::vec3(eye_transformation * glm::vec4(w,0)));
 }
 
-void Camera::SetViewByMouse(float xOffset, float yOffset) {
-    rotate(-xOffset * mouseSpeed, glm::vec3(0, 1, 0));
-    rotate(-yOffset * mouseSpeed, glm::vec3(1, 0, 0));
+void Camera::SetViewByMouse(float xOffset, float yOffset,CameraMode camera_mode) {
+    switch(camera_mode) {
+        case SEMI:
+            rotateAroundCenter(-xOffset * mouseSpeed, glm::vec3(0, 1, 0));
+            rotateAroundCenter(-yOffset * mouseSpeed, glm::vec3(1, 0, 0));
+            break;
+        case MANUAL:
+            rotate(-xOffset * mouseSpeed, glm::vec3(0, 1, 0));
+            rotate(-yOffset * mouseSpeed, glm::vec3(1, 0, 0));
+            break;
+        default:
+            return;
+    }
 }
 void Camera::focusOnCenter() {
     w = glm::normalize(ctr - eye);

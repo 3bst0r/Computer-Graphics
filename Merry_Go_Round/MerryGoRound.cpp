@@ -220,7 +220,7 @@ void PassiveMouse(int x, int y) {
 
     int xOff = x - centerX;
     int yOff = y - centerY;
-    camera.SetViewByMouse(xOff,yOff);
+    camera.SetViewByMouse(xOff,yOff,camera_mode);
     glutWarpPointer(centerX, centerY);
     just_warped = true;
 }

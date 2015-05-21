@@ -6,6 +6,7 @@
 #define COMPUTER_GRAPHICS_CAMERA_H
 #define GLM_FORCE_RADIANS
 #include "../glm/glm.hpp"
+#include "CameraMode.h"
 
 class Camera {
 public:
@@ -21,7 +22,7 @@ public:
     void rotate(float degrees, glm::vec3 axis);
     void rotateAroundCenter(float degrees,  glm::vec3 axis);
     void focusOnCenter();
-    void SetViewByMouse(float xOffset, float yOffset);
+    void SetViewByMouse(float xOffset, float yOffset,CameraMode camera_mode);
     glm::mat4 viewMatrix();
 private:
     float mouseSpeed;
