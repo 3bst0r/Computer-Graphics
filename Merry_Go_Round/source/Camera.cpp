@@ -8,7 +8,6 @@
 #include "Camera.h"
 #include "Transformation.h"
 #include "CameraMode.h"
-#define GLM_FORCE_RADIANS
 #include "../glm/glm.hpp"
 #include "../glm/gtc/matrix_transform.hpp"
 #include "../glm/gtx/string_cast.hpp"
@@ -17,20 +16,16 @@
 using namespace std;
 
 Camera::Camera(glm::vec3 camera_pos) {
-    mouseSpeed = 0.1;
+    mouseSpeed = 0.07;
     up = glm::vec3(0,1,0);
     eye = camera_pos;
-    _u = glm::vec3(1,0,0);
-    _v = glm::vec3(0,1,0);
-    _w = glm::vec3(0,0,-1);
     ctr = glm::vec3(0,0,0);
     focusOnCenter();
 }
 
 /* translate value along normalized u, v or w */
 void Camera::translate(glm::vec3 axis, float value) {
-    glm::mat4 eye_transformation = glm::translate(glm::mat4(1),value * axis);
-    eye = glm::vec3(eye_transformation * glm::vec4(eye,1));
+    eye = glm::vec3(glm::translate(glm::mat4(1),value * axis) * glm::vec4(eye,1));
 }
 
 void Camera::forward(float value) {
@@ -42,50 +37,52 @@ void Camera::back(float value) {
 }
 
 void Camera::left(float value) {
-    translate(u, -value);
+    translate(glm::cross(w, up), -value);
 }
 
 void Camera::right(float value) {
-    translate(u, value);
+    translate(glm::cross(w, up), value);
 }
 
-/* rotate around u, v or w */
 void Camera::rotate(float degree, glm::vec3 axis) {
-    glm::mat4 rotate = glm::rotate(glm::mat4(1),glm::radians(degree),axis);
-    w = glm::vec3(rotate * glm::vec4(w, 0));
-    glm::mat4 inv = glm::inverse(viewMatrix());
-
-    u = glm::vec3(inv * glm::vec4(_u, 0));
-    v = glm::vec3(inv * glm::vec4(_v, 0));
+    glm::mat4 rotation = glm::rotate(glm::mat4(1), glm::radians(degree), axis);
+    if(abs(glm::vec3(rotation * glm::vec4(w, 1))[1]) > 0.8){    //max angle 0.8 * PI/2
+        return;
+    }
+    w = glm::vec3(rotation * glm::vec4(w, 1));
 }
 
 void Camera::rotateAroundCenter(float degree,glm::vec3 axis) {
-    glm::mat4 eye_transformation = glm::rotate(glm::mat4(1), glm::radians(degree), axis);
-
-    eye = glm::vec3(eye_transformation * glm::vec4(eye,1));
-    u = glm::normalize(glm::vec3(eye_transformation * glm::vec4(u,0)));
-    v = glm::normalize(glm::vec3(eye_transformation * glm::vec4(v,0)));
-    w = glm::normalize(glm::vec3(eye_transformation * glm::vec4(w,0)));
+    glm::vec3 eye_old = eye;
+    eye = glm::vec3(glm::rotate(glm::mat4(1), glm::radians(degree), axis) * glm::vec4(eye,1));
+    focusOnCenter();
+    if(abs(w[1]) > 0.8){    //max angle 0.8 * PI/2
+        eye = eye_old;
+        focusOnCenter();
+    }
 }
 
 void Camera::SetViewByMouse(float xOffset, float yOffset,CameraMode camera_mode) {
     switch(camera_mode) {
         case SEMI:
-            rotateAroundCenter(-xOffset * mouseSpeed, glm::vec3(0, 1, 0));
-            rotateAroundCenter(-yOffset * mouseSpeed, glm::vec3(1, 0, 0));
+            rotateAroundCenter(-xOffset * mouseSpeed, up);
+            rotateAroundCenter(-yOffset * mouseSpeed, glm::cross(w, up));
             break;
         case MANUAL:
-            rotate(-xOffset * mouseSpeed, glm::vec3(0, 1, 0));
-            rotate(-yOffset * mouseSpeed, glm::vec3(1, 0, 0));
+            rotate(-xOffset * mouseSpeed, up);
+            rotate(-yOffset * mouseSpeed, glm::cross(w, up));
             break;
         default:
             return;
     }
 }
+
+glm::vec3 Camera::getU(){
+    return glm::cross(w, up);
+}
+
 void Camera::focusOnCenter() {
     w = glm::normalize(ctr - eye);
-    u = glm::normalize(glm::cross(w, up));
-    v = glm::normalize(glm::cross(u, w));
 }
 
 glm::mat4 Camera::viewMatrix() {

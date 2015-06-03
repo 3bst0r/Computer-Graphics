@@ -11,7 +11,7 @@
 class Camera {
 public:
     Camera(glm::vec3 camera_pos);
-    glm::vec3 eye, ctr, u, v, w;
+    glm::vec3 eye, ctr, w;
 
     /* the view matrix to be loaded into the shader */
     void translate(glm::vec3 axis, float value);
@@ -23,10 +23,11 @@ public:
     void rotateAroundCenter(float degrees,  glm::vec3 axis);
     void focusOnCenter();
     void SetViewByMouse(float xOffset, float yOffset,CameraMode camera_mode);
+    glm::vec3 getU();
     glm::mat4 viewMatrix();
 private:
     float mouseSpeed;
-    glm::vec3 up,_u,_v,_w;
+    glm::vec3 up;
 };
 
 

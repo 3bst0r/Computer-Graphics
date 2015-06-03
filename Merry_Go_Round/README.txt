@@ -13,10 +13,12 @@ AUTO Mode:
 
 MANUAL Mode (first person mode):
 	You can translate the camera along its own coordinate system by using WASD.
-	Look around by using the arrow keys.
+	Look around by using the arrow keys or the mouse.
 
 SEMI-AUTO Mode:
 	Translate the camera just like in manual mode.
-	By using the arrow keys the camera moves in a circle around the center.
+	By using the arrow keys or the mouse the camera moves in a circle around the center.
 
 You can always reset the camera by pressing '0'.
+
+NOTE: The maximum rotation up and down is 0.8 * PI/2 rad.

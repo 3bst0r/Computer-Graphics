@@ -342,7 +342,7 @@ void OnIdle()
                     camera.rotateAroundCenter(-degrees_per_sec*dt,glm::vec3(1,0,0));
                     break;
                 case mARROW_DOWN :
-                    camera.rotateAroundCenter(degrees_per_sec*dt,glm::vec3(1,0,00));
+                    camera.rotateAroundCenter(degrees_per_sec*dt,glm::vec3(1,0,0));
                     break;
                 case mARROW_LEFT :
                     camera.rotateAroundCenter(-degrees_per_sec*dt,glm::vec3(0,1,0));
@@ -371,10 +371,10 @@ void OnIdle()
                     break;
 
                 case mARROW_UP :
-                    camera.rotate(degrees_per_sec*dt,camera.u);
+                    camera.rotate(degrees_per_sec*dt, camera.getU());
                     break;
                 case mARROW_DOWN :
-                    camera.rotate(-degrees_per_sec*dt,camera.u);
+                    camera.rotate(-degrees_per_sec*dt, camera.getU());
                     break;
                 case mARROW_LEFT :
                     camera.rotate(degrees_per_sec*dt,glm::vec3(0,1,0));
