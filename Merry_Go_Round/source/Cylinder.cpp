@@ -9,7 +9,6 @@
 
 #include <iostream>
 #include <cmath>
-#include <time.h>
 
 #include "Shape.h"
 #include "Cylinder.h"
@@ -23,27 +22,16 @@ using namespace std;
 * creates a basic cylinder object with the given specification
 *
 *******************************************************************/
-Cylinder::Cylinder(int points, double radius, double height, double x_offset, double y_offset, double z_offset, double top_center_offset)
+Cylinder::Cylinder(int points, double radius, double height, double x_offset, double y_offset, double z_offset, double top_center_offset, float color_r, float color_g, float color_b)
 : Shape(points * 2 + 2, 4 * points){
 	center_x = x_offset;
 	center_y = y_offset + height / 2;
 	center_z = z_offset;
-	srand(time(NULL));
-	float color;
-	//set random color
-	for(int i = 0; i < 3 * points; i++){
-		color = ((float)rand()) / RAND_MAX;
-		color_buffer_data[i] = color;
-		color_buffer_data[3 * points + i] = color;
-	}
-	
-	//set center color(white)
-	for(int i = 3 * points; i < 3 *points + 2 * 3; i++){
-		color_buffer_data[i] = 0.;
-	}
-	
-	for(int i = 0; i < 6; i++){
-		color_buffer_data[3 * 2 * points + i] = 1.;
+
+	for(int i = 0; i < 2 * points + 2; i++){
+		color_buffer_data[3 * i] = color_r;
+		color_buffer_data[3 * i + 1] = color_g;
+		color_buffer_data[3 * i + 2] = color_b;
 	}
 	
 	for(int i = 0; i < points; i++){

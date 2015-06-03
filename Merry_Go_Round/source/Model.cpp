@@ -8,12 +8,9 @@
 
 
 #include <iostream>
-#include <cmath>
-#include <time.h>
 
 #include "Shape.h"
 #include "Model.h"
-#include "OBJParser.h"
 
 using namespace std;
 
@@ -24,14 +21,12 @@ using namespace std;
 * loads the model into a shape object
 *
 *******************************************************************/
-Model::Model(obj_scene_data model, float x, float y, float z, float scale)
+Model::Model(obj_scene_data model, float x, float y, float z, float scale, float color_r, float color_g, float color_b)
 : Shape(model.vertex_count, model.face_count){
-	srand(time(NULL));
-	float color;
-	//set random color
-	for(int i = 0; i < 3 * model.vertex_count; i++){
-		color = ((float)rand()) / RAND_MAX;
-		color_buffer_data[i] = color;
+	for(int i = 0; i < model.vertex_count; i++){
+		color_buffer_data[3 * i] = color_r;
+		color_buffer_data[3 * i + 1] = color_g;
+		color_buffer_data[3 * i + 2] = color_b;
 	}
 
 	center_x = x;

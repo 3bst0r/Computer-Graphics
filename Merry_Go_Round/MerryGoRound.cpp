@@ -24,16 +24,16 @@
 #include "glm/gtc/type_ptr.hpp"
 
 /* Local includes */
-#include "LoadShader.h"   /* Provides loading function for shader code */
-#include "Transformation.h"
-#include "Shape.h"
-#include "Cylinder.h"
-#include "Cube.h"
-#include "Block.h"
-#include "Model.h"
-#include "OBJParser.h"
-#include "Camera.h"
-#include "CameraMode.h"
+#include "source/LoadShader.h"   /* Provides loading function for shader code */
+#include "source/Transformation.h"
+#include "source/Shape.h"
+#include "source/Cylinder.h"
+#include "source/Cube.h"
+#include "source/Block.h"
+#include "source/Model.h"
+#include "source/OBJParser.h"
+#include "source/Camera.h"
+#include "source/CameraMode.h"
 
 /* necessary because GLUT_KEY_something int codes overlap with wasd */
 #define mARROW_LEFT -2
@@ -448,14 +448,14 @@ void OnIdle()
 
 void initObjects() {
 	/* create the basic shape */
-    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0., 0.);
-    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0., 1.));
-    objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0., 0.));
+    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
+    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
+    objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0., 0., 1., 1., 0.));
 
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0., 0.));
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0., 0.));
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2., 0.));
-    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2., 0.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0., 0., 0., 0., 1.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0., 0., 0., 0., 1.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2., 0., 0., 0., 1.));
+    objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2., 0., 0., 0., 1.));
   
     
     /* create the 4 cubes */
@@ -466,10 +466,10 @@ void initObjects() {
         cerr << "Could not load file. Exiting." << endl;
         exit(EXIT_FAILURE);
 	}
-    objects[1] = new Model(horse, 2., 0.4, 0., .6);
-    objects[2] = new Model(horse, -2., 0.4, 0., .6);
-    objects[3] = new Model(horse, 0., 0.4, 2., .6);
-    objects[4] = new Model(horse, 0., 0.4, -2., .6);
+    objects[1] = new Model(horse, 2., 0.4, 0., .6, 0.545, 0.271, 0.075);
+    objects[2] = new Model(horse, -2., 0.4, 0., .6, 0.545, 0.271, 0.075);
+    objects[3] = new Model(horse, 0., 0.4, 2., .6, 0.545, 0.271, 0.075);
+    objects[4] = new Model(horse, 0., 0.4, -2., .6, 0.545, 0.271, 0.075);
     
     room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
