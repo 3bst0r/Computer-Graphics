@@ -37,7 +37,6 @@ Model::Model(obj_scene_data model, float x, float y, float z, float scale, float
 		vertex_buffer_data[i * 3 + 1] = (GLfloat)(*model.vertex_list[i]).e[1] * scale + y;
 		vertex_buffer_data[i * 3 + 2] = (GLfloat)(*model.vertex_list[i]).e[2] * scale + z;
     }
-    
     for(int i = 0; i < model.face_count; i++){
 		index_buffer_data[i*3] = (GLushort)(*model.face_list[i]).vertex_index[0];
 		index_buffer_data[i*3+1] = (GLushort)(*model.face_list[i]).vertex_index[1];

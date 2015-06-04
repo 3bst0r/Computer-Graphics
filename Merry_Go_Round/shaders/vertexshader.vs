@@ -4,13 +4,16 @@ uniform mat4 ProjectionMatrix;
 uniform mat4 ViewMatrix;
 uniform mat4 ModelMatrix;
 
-layout (location = 0) in vec3 Position;
-layout (location = 1) in vec3 Color;
+layout (location = 0) in vec3 vPosition;
+layout (location = 1) in vec3 vColor;
 
-out vec4 vColor;
+out vec4 fEye;
+out vec4 fNormal;
+out vec4 fColor;
 
-void main()
-{
-   gl_Position = ProjectionMatrix*ViewMatrix*ModelMatrix*vec4(Position.x, Position.y, Position.z, 1.0);
-   vColor =vec4(Color.r, Color.g, Color.b, 1.0);
+void main(){
+   gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(vPosition.x, vPosition.y, vPosition.z, 1.0);
+   fEye = ViewMatrix * ModelMatrix * vec4(vPosition, 1.0);
+   fNormal = normalize(ViewMatrix * ModelMatrix * vec4(0.0, 1.0, 0.0, 0.0));
+   fColor = vec4(vColor.r, vColor.g, vColor.b, 1.0);
 }

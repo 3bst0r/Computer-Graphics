@@ -89,7 +89,6 @@ static const char* FragmentShaderString;
 GLuint ShaderProgram;
 
 Transformation ProjectionMatrix; /* Perspective projection matrix */
-Transformation ViewMatrix; /* Camera view matrix */ 
 Transformation ModelMatrix[5]; /* Model matrix */
 Transformation RoomMatrix[1];
 Transformation LightMatrix[1];
@@ -173,7 +172,18 @@ void Display()
 			cerr << "Could not bind uniform ModelMatrix" << endl;
 			exit(-1);
 		}
-		glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix[i].matrix); 
+		glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix[i].matrix);
+
+        /*Transformation NormalMatrix;
+        NormalMatrix.multiply(glm::value_ptr(camera.viewMatrix()));
+        NormalMatrix.multiply(ModelMatrix[i].matrix);
+        GLint NormalUniform = glGetUniformLocation(ShaderProgram, "NormalMatrix");
+        if (NormalUniform == -1)
+        {
+            cerr << "Could not bind uniform NormalMatrix" << endl;
+            exit(-1);
+        }
+        glUniformMatrix4fv(NormalUniform, 1, GL_TRUE, NormalMatrix.matrix);*/
 
         /* Issue draw command, using indexed triangle list */
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
@@ -496,7 +506,6 @@ void initObjects() {
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0., 0., 0., 0., 1.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2., 0., 0., 0., 1.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2., 0., 0., 0., 1.));
-  
     obj_scene_data horse;
     /* Load horse OBJ model */
     char filename[] = "models/horse.obj";
@@ -508,10 +517,8 @@ void initObjects() {
     objects[2] = new Model(horse, -2., 0.4, 0., .6, 0.545, 0.271, 0.075);
     objects[3] = new Model(horse, 0., 0.4, 2., .6, 0.545, 0.271, 0.075);
     objects[4] = new Model(horse, 0., 0.4, -2., .6, 0.545, 0.271, 0.075);
-    
     room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
-    
 	/* set light sources */
 	lights[0] = new Lightsource(-6.0, 6.0, 2.0, 1.0, 1.0, 1.0); //fixed light
 	lights[1] = new Lightsource(0., 2., 4.0, 0.5, 0., 0.); //light moving with the merry go round
@@ -711,8 +718,6 @@ void Initialize(void)
     float temp[16];
     SetPerspectiveMatrix(fovy, aspect, nearPlane, farPlane, temp);
 	ProjectionMatrix.set_transformation(temp);
-
-    ViewMatrix.translate(0,0,-10);
 
     /* Initial transformation matrix */
 	InitialTransform.translate(0, -sqrtf(sqrtf(2.0)), 0);

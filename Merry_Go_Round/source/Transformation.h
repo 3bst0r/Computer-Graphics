@@ -20,7 +20,7 @@
 			void rotateZ(float angle);
 			void translate(float x, float y, float z);
 			void set_transformation(float* m);
-			void multiply(float* matrix2);
+			void multiply(const float* matrix2);
 	};
 
 	void SetPerspectiveMatrix(float fov, float aspect, float nearPlane, float farPlane, float* result);

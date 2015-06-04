@@ -144,7 +144,7 @@ void Transformation::translate(float x, float y, float z){
 *
 *******************************************************************/
 
-void Transformation::multiply(float* m2)
+void Transformation::multiply(const float* m2)
 {
     float temp[16];
 
