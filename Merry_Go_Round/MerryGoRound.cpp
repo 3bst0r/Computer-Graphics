@@ -34,6 +34,7 @@
 #include "source/OBJParser.h"
 #include "source/Camera.h"
 #include "source/CameraMode.h"
+#include "source/Lightsource.h"
 
 /* necessary because GLUT_KEY_something int codes overlap with wasd */
 #define mARROW_LEFT -2
@@ -69,6 +70,15 @@ GLuint CBR;
 /*Define handlers to index buffer room_components*/
 GLuint IBR;
 
+/*Define handlers to vertex buffer lights*/
+GLuint VBL;
+
+/*Define handlers to color buffer lights*/
+GLuint CBL;
+
+/*Define handlers to index buffer lights*/
+GLuint IBL;
+
 /* Indices to vertex attributes; in this case positon and color */ 
 enum DataID {vPosition = 0, vColor = 1}; 
 
@@ -82,6 +92,7 @@ Transformation ProjectionMatrix; /* Perspective projection matrix */
 Transformation ViewMatrix; /* Camera view matrix */ 
 Transformation ModelMatrix[5]; /* Model matrix */
 Transformation RoomMatrix[1];
+Transformation LightMatrix[1];
 Transformation IdentityMatrix;
 Transformation InitialTransform;
 Camera camera(glm::vec3(0,0,10));
@@ -100,6 +111,9 @@ Shape **objects = new Shape*[5];
 
 /* walls and floor */
 Shape **room_components = new Shape*[0];
+
+/* light sources **/
+Lightsource **lights = new Lightsource*[2];
 
 /*----------------------------------------------------------------*/
 
@@ -140,6 +154,7 @@ void Display()
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
 
+	/*ModelMatrix*/
     for (int i = 0; i < 5; i++) {
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
@@ -164,7 +179,7 @@ void Display()
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
     
-    
+    /*RoomMatrix*/
     glBindBuffer(GL_ARRAY_BUFFER, VBR);
     glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -177,13 +192,34 @@ void Display()
     
     GLint RoomUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
 	if (RoomUniform == -1){
-		cerr << "Could not bind uniform ModelMatrix" << endl;
+		cerr << "Could not bind uniform RoomMatrix" << endl;
 		exit(-1);
 	}
 	glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix); 
 
     /* Issue draw command, using indexed triangle list */
     glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+    
+    /*LightMatrix*/
+    glBindBuffer(GL_ARRAY_BUFFER, VBL);
+    glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, CBL);
+    glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBL);
+
+    GLint size_l;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size_l);
+    
+    GLint LightUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+	if (LightUniform == -1){
+		cerr << "Could not bind uniform LightMatrix" << endl;
+		exit(-1);
+	}
+	glUniformMatrix4fv(LightUniform, 1, GL_FALSE, LightMatrix[0].matrix); 
+
+    /* Issue draw command, using indexed triangle list */
+    glDrawElements(GL_TRIANGLES, size_l/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
 
 
     /* Disable attributes */
@@ -394,6 +430,7 @@ void OnIdle()
 		Transformation TranslationMatrixAnim2;
 		Transformation TranslationMatrixAnim3;
 		Transformation TranslationMatrixAnim4;
+		Transformation LightRotationMatrix;
 		
 		if(camera_mode == AUTO){
 			camera.rotateAroundCenter(angle * auto_speed, glm::vec3(0,1,0));
@@ -425,6 +462,8 @@ void OnIdle()
 		TranslationMatrixAnim4.translate(objects[4]->center_x, objects[4]->center_y, objects[4]->center_z);
 		TranslationMatrixAnim4.rotateY(-5 * angle);
 		TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
+		
+		LightRotationMatrix.rotateY(angle/2);
 
 		/* Apply model rotation; finally move cube down */
 		ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
@@ -432,6 +471,7 @@ void OnIdle()
 		ModelMatrix[2].set_transformation(TranslationMatrixAnim2.matrix);
 		ModelMatrix[3].set_transformation(TranslationMatrixAnim3.matrix);
 		ModelMatrix[4].set_transformation(TranslationMatrixAnim4.matrix);
+		LightMatrix[0].set_transformation(LightRotationMatrix.matrix);
 	}
 
     /* Request redrawing of window content */
@@ -442,7 +482,7 @@ void OnIdle()
 *
 * initObjects
 *
-* initialize shapes
+* initialize shapes and set light sources
 *
 *******************************************************************/
 
@@ -457,8 +497,6 @@ void initObjects() {
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2., 0., 0., 0., 1.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2., 0., 0., 0., 1.));
   
-    
-    /* create the 4 cubes */
     obj_scene_data horse;
     /* Load horse OBJ model */
     char filename[] = "models/horse.obj";
@@ -473,6 +511,11 @@ void initObjects() {
     
     room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
+    
+	/* set light sources */
+	lights[0] = new Lightsource(-6.0, 6.0, 2.0, 1.0, 1.0, 1.0); //fixed light
+	lights[1] = new Lightsource(0., 2., 4.0, 0.5, 0., 0.); //light moving with the merry go round
+	
 }
 
 /******************************************************************
@@ -513,6 +556,19 @@ void SetupDataBuffers() {
     glGenBuffers(1, &CBR);
     glBindBuffer(GL_ARRAY_BUFFER, CBR);
     glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[0]->color_buffer_data, GL_STATIC_DRAW);
+    
+    /* initialize buffers for room components */
+    glGenBuffers(1, &VBL);
+    glBindBuffer(GL_ARRAY_BUFFER, VBL);
+    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat), lights[1]->vertex_buffer_data, GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &IBL);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBL);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 1 * sizeof(GLfloat), lights[1]->index_buffer_data, GL_STATIC_DRAW);
+    
+    glGenBuffers(1, &CBL);
+    glBindBuffer(GL_ARRAY_BUFFER, CBL);
+    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat), lights[1]->color_buffer_data, GL_STATIC_DRAW);
     
 }
 
