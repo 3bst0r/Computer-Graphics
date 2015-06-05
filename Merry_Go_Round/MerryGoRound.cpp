@@ -511,6 +511,93 @@ void initObjects() {
 	lights[1] = new Lightsource(0., 2., 4.0, 0.5, 0., 0.); //light moving with the merry go round	
 }
 
+
+/******************************************************************
+*
+* rgbToHsv
+*
+* converts rgb values to hsv
+*
+*******************************************************************/
+
+glm::vec3 rgbToHsv(glm::vec3 rgbVal){
+	
+	float M = glm::max(glm::max(rgbVal.x, rgbVal.z), rgbVal.z);
+	float N = glm::min(glm::min(rgbVal.x, rgbVal.z), rgbVal.z);
+	double h;
+	double s;
+	double v;
+	
+	/*compute H*/
+	if(M == N){
+		h = 0;
+	}else if(M == rgbVal.x){
+		h = 60 * (0 + (rgbVal.y - rgbVal.z)/(M - N));
+	}else if(M == rgbVal.y){
+		h = 60 * (2 + (rgbVal.z - rgbVal.x)/(M - N));
+	}else{
+		h = 60 * (4 + (rgbVal.x - rgbVal.z)/(M - N));
+	}
+	if(h <0){
+		h += 360;
+	}
+	
+	/*compute S*/
+	if(M == 0){
+		s = 0;
+	}else{
+		s = 100 * (M - N)/M;
+	}
+	
+	/*compute V*/
+	v = 100 * M;
+	
+	return glm::vec3(h,s,v);
+}
+
+/******************************************************************
+*
+* hsvToRgb
+*
+* converts hsv values to rgb
+*
+*******************************************************************/
+
+glm::vec3 hsvToRgb(glm::vec3 hsvVal){
+	
+	double C = hsvVal.z * hsvVal.y;
+	double H = hsvVal.x/60;
+	double X = C * (1 -	glm::abs(glm::mod(H, 2) - 1)); 
+	double m = hsvVal.z - C;
+	double r;
+	double g;
+	double b;
+	glm::vec3 rgb;
+	
+	if(0 <= H < 1){
+		rgb = (C + m,X + m,0 + m);
+		return rgb;
+	}else if(1 <= H < 2){
+		rgb = (X + m,C + m,0 + m);
+		return rgb;
+	}else if(2 <= H < 3){
+		rgb = (0 + m,C + m,X + m);
+		return rgb;
+	}else if(3 <= H < 4){
+		rgb = (0 + m,X + m,C + m);
+		return rgb;
+	}else if(4 <= H < 5){
+		rgb = (X + m,0 + m,C + m);
+		return rgb;
+	}else if(5 <= H < 6){
+		rgb = (C + m,0 + m,X + m);
+		return rgb;
+	}else{
+		rgb = (0 + m,0 + m,0 + m);
+		return rgb;
+	}
+}
+
 /******************************************************************
 *
 * SetupDataBuffers
