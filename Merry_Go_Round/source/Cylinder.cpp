@@ -77,8 +77,8 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 		index_buffer_data[12 * i + 1] = (j + 1) % points;
 		index_buffer_data[12 * i + 2] = j + points;
 
-		index_buffer_data[12 * i + 3] = j + points;
-		index_buffer_data[12 * i + 4] = (j + 1) % points + points;
+		index_buffer_data[12 * i + 4] = j + points;
+		index_buffer_data[12 * i + 3] = (j + 1) % points + points;
 		index_buffer_data[12 * i + 5] = (j + 1) % points;
 	}
 	compute_normals();

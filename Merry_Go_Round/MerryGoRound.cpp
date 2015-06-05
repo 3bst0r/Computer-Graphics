@@ -100,9 +100,9 @@ long t = glutGet(GLUT_ELAPSED_TIME);
 /* camera mode auto stuff */
 double auto_speed;
 
-int y = 1;
-int x = 1;
-int c = 1;
+int ky = 1;
+int kx = 1;
+int kc = 1;
 
 /* displayable objects */
 Shape **objects = new Shape*[5];
@@ -184,6 +184,16 @@ void Display()
 		exit(-1);
 	}
 	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));
+	
+	cout << "green light pos: ";
+	for(int i = 0; i < 3; i++)
+		cout << (glm::make_mat4(LightMatrix[0].matrix) * glm::vec4(lights[1]->pos, 1))[i] << " ";
+	cout << endl;
+	
+	cout << "green light color: ";
+	for(int i = 0; i < 3; i++)
+		cout << lights[1]->rgb[i] << " ";
+	cout << endl;
 
     GLint kA = glGetUniformLocation(ShaderProgram, "kA");
     GLint kD = glGetUniformLocation(ShaderProgram, "kD");
@@ -201,9 +211,9 @@ void Display()
 
     for (int i = 0; i < 5; i++) {
 
-        glUniform1f(kA, objects[i]->kA);
-        glUniform1f(kD, objects[i]->kS);
-        glUniform1f(kS, objects[i]->kD);
+        glUniform1f(kA, objects[i]->kA * ky);
+        glUniform1f(kD, objects[i]->kD * kx);
+        glUniform1f(kS, objects[i]->kS * kc);
 
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
@@ -359,6 +369,17 @@ void KeyboardSpecialKeys(int key, int xp, int yp) {
 }
 
 void KeyboardUp(unsigned char key, int x, int y) {
+	switch(key){
+		case 'y':
+			ky = !ky;
+			break;
+		case 'x':
+			kx = !kx;
+			break;
+		case 'c':
+			kc = !kc;
+			break;
+	}
     currentKey = -1;
 }
 
@@ -416,15 +437,6 @@ void OnIdle()
 			}
 			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
 			lights[0]->rgb = newRgb;
-			break;
-		case 'y':
-			y = !y;
-			break;
-		case 'x':
-			x = !x;
-			break;
-		case 'c':
-			c = !c;
 			break;
     }
     switch(camera_mode) {
@@ -538,9 +550,9 @@ void OnIdle()
 		TranslationMatrixAnim4.rotateY(-5 * angle);
 		TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
 		
-		LightRotationMatrix.translate(0., -3., 5.); 
+		LightRotationMatrix.translate(0., 0., -3.); 
 		LightRotationMatrix.rotateY(angle/2);
-		LightRotationMatrix.translate(0., 3., -5.); 
+		LightRotationMatrix.translate(0., 0., 3.); 
 
 		/* Apply model rotation; finally move cube down */
 		ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
@@ -565,8 +577,8 @@ void OnIdle()
 
 void initObjects() {
 	/* create the basic shape */
-    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
-    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
+    objects[0] = new Cylinder(150, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
+    objects[0]->add_shape(new Cylinder(4, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
     objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0., 0., 1., 1., 0.));
 
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0., 0., 0., 0., 1.));
@@ -596,8 +608,8 @@ void initObjects() {
 	h = hsv_light1[0];
 	s = hsv_light1[1];
 	v = hsv_light1[2];
-	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 1.0, 1.0); //fixed light
-	lights[1] = new Lightsource(0., 3., -5.0, 0., 1., 0.); //light moving with the merry go round	
+	lights[0] = new Lightsource(0.0, 0.0, -10.0, 1.0, 1.0, 1.0); //fixed light
+	lights[1] = new Lightsource(0., 0., 3.0, 0., 1., 0.); //light moving with the merry go round	
 }
 
 /******************************************************************
