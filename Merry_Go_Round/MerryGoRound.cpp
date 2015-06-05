@@ -65,16 +65,16 @@ GLuint IBO[5];
 GLuint NBO[5];
 
 /*Define handlers to vertex buffer room_components*/
-GLuint VBR;
+GLuint VBR[2];
 
 /*Define handlers to color buffer room_components*/
-GLuint CBR;
+GLuint CBR[2];
 
 /*Define handlers to index buffer room_components*/
-GLuint IBR;
+GLuint IBR[2];
 
 /*Define handlers to index buffer room_components*/
-GLuint NBR;
+GLuint NBR[2];
 
 /* Indices to vertex attributes; in this case positon and color */ 
 enum DataID {vPosition = 0, vColor = 1, vNormal = 2};
@@ -106,10 +106,17 @@ double height = 1;
 Shape **objects = new Shape*[5];
 
 /* walls and floor */
-Shape **room_components = new Shape*[0];
+Shape **room_components = new Shape*[1];
 
 /* light sources **/
 Lightsource **lights = new Lightsource*[2];
+glm::vec3 hsv_light1;
+
+/*variables for hsv manipulation*/
+float h;
+float s;
+float v;
+glm::vec3 newRgb;
 
 /*----------------------------------------------------------------*/
 
@@ -220,31 +227,35 @@ void Display()
 
         glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
-    
+
+    for (int i = 0; i < 2; i++) {
+        glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, CBR[i]);
+        glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, NBR[i]);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR[i]);
+
+        GLint size;
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+
+        GLint RoomUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+        if (RoomUniform == -1){
+            cerr << "Could not bind uniform ModelMatrix" << endl;
+            exit(-1);
+        }
+        glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix);
+
+
+        /* Issue draw command, using indexed triangle list */
+        glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+    }
     /*RoomMatrix*/
-    glBindBuffer(GL_ARRAY_BUFFER, VBR);
-    glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, CBR);
-    glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, NBR);
-    glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR);
-
-    GLint size;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    
-    GLint RoomUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
-	if (RoomUniform == -1){
-		cerr << "Could not bind uniform RoomMatrix" << endl;
-		exit(-1);
-	}
-	glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix); 
-
-    /* Issue draw command, using indexed triangle list */
-    glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
 
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
@@ -371,28 +382,23 @@ void OnIdle()
     int units_per_sec = 6;// for translation
     float dt = (glutGet(GLUT_ELAPSED_TIME) -t)/1000.; // elapsed time in seconds
     t = glutGet(GLUT_ELAPSED_TIME);
-    /*variables for hsv manipulation*/
-    float h = lights[0]->rgbToHsv(lights[0]->rgb)[0];
-	float s = lights[0]->rgbToHsv(lights[0]->rgb)[1];
-	float v = lights[0]->rgbToHsv(lights[0]->rgb)[2];
-	glm::vec3 newRgb;
     /* camera transformation */
     switch(currentKey) {
         case 'q':
         case 'Q':
             exit(0);
         case 'i':
-			s += 0.05;
-			if(s > 1.0){
-				s -= 1.0;
+			h += 10.0;
+			if(h > 360.0){
+				h -= 360.0;
 			}
 			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
 			lights[0]->rgb = newRgb;
 			break;
 		case 'k':
-			s -= 0.05;
-			if(s < 0.0){
-				s += 1.0;
+			h -= 10.0;
+			if(h < 0.0){
+				h += 360.0;
 			}
 			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
 			lights[0]->rgb = newRgb;
@@ -574,9 +580,15 @@ void initObjects() {
     objects[3] = new Model(horse, 0., 0.4, 2., .6, 0.545, 0.271, 0.075);
     objects[4] = new Model(horse, 0., 0.4, -2., .6, 0.545, 0.271, 0.075);
 
-    room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
-    room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
+    room_components[0] = new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0);
+    room_components[1] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
 	/* set light sources */
+	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 0.0, 0.0); //fixed light
+	lights[1] = new Lightsource(0., 0., -10.0, 0., 1., 0.); //light moving with the merry go round	
+	hsv_light1 = lights[0]->rgbToHsv(lights[0]->rgb);
+	h = hsv_light1[0];
+	s = hsv_light1[1];
+	v = hsv_light1[2];
 	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 1.0, 1.0); //fixed light
 	lights[1] = new Lightsource(0., 3., -5.0, 0., 1., 0.); //light moving with the merry go round	
 }
@@ -610,24 +622,26 @@ void SetupDataBuffers() {
         glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
         glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->normal_buffer_data, GL_STATIC_DRAW);
     }
-    
-    /* initialize buffers for room components */
-    glGenBuffers(1, &VBR);
-    glBindBuffer(GL_ARRAY_BUFFER, VBR);
-    glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[0]->vertex_buffer_data, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &IBR);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * room_components[0]->triangle_number * sizeof(GLfloat), room_components[0]->index_buffer_data, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &CBR);
-    glBindBuffer(GL_ARRAY_BUFFER, CBR);
-    glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[0]->color_buffer_data, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &NBR);
-    glBindBuffer(GL_ARRAY_BUFFER, NBR);
-    glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[0]->normal_buffer_data, GL_STATIC_DRAW);
-    
+    for (int i = 0; i < 2; i++) {
+
+        /* initialize buffers for room components */
+        glGenBuffers(1, &VBR[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->vertex_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &IBR[i]);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR[i]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * room_components[0]->triangle_number * sizeof(GLfloat), room_components[i]->index_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &CBR[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, CBR[i]);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->color_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &NBR[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, NBR[i]);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->normal_buffer_data, GL_STATIC_DRAW);
+    }
+
 }
 
 /******************************************************************

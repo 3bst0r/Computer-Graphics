@@ -22,47 +22,66 @@ using namespace std;
 *
 *******************************************************************/
 Block::Block(float x_val, float y_val, float z_val, float height, float width, float thickness) /* XYZ values of the blocks center and length of the 3 different edge sizes*/
-: Shape(8, 12){
+: Shape(36, 12){
 	center_x = x_val;
 	center_y = y_val;
 	center_z = z_val;
-	GLfloat vertex_buffer_data_tmp[] = { /* 8 block vertices XYZ */
-		 (x_val - (width/2)), (y_val - (height/2)),  (z_val + (thickness/2)),
-		 (x_val + (width/2)), (y_val - (height/2)),  (z_val + (thickness/2)),
-		 (x_val + (width/2)), (y_val + (height/2)),  (z_val + (thickness/2)),
-		 (x_val - (width/2)), (y_val + (height/2)),  (z_val + (thickness/2)),
-		 (x_val - (width/2)), (y_val - (height/2)),  (z_val - (thickness/2)),
-		 (x_val + (width/2)), (y_val - (height/2)),  (z_val - (thickness/2)),
-		 (x_val + (width/2)), (y_val + (height/2)),  (z_val - (thickness/2)),
-		 (x_val - (width/2)), (y_val + (height/2)),  (z_val - (thickness/2)),
-	};   
-	GLfloat color_buffer_data_tmp[] = { /* RGB color values for 8 vertices */
-		0.0, 0.0, 1.0,
-		1.0, 0.0, 1.0,
-		1.0, 1.0, 1.0,
-		0.0, 1.0, 1.0,
-		0.0, 0.0, 0.0,
-		1.0, 0.0, 0.0,
-		1.0, 1.0, 0.0,
-		0.0, 1.0, 0.0,
-	}; 
-	GLushort index_buffer_data_tmp[] = { /* Indices of 6*2 triangles (6 sides) */
-		0, 1, 2,
-		2, 3, 0,
-		1, 5, 6,
-		6, 2, 1,
-		7, 6, 5,
-		5, 4, 7,
-		4, 0, 3,
-		3, 7, 4,
-		4, 5, 1,
-		1, 0, 4,
-		3, 2, 6,
-		6, 7, 3,
+	GLfloat vertex_help[] = {
+			(x_val - (width / 2)), (y_val - (height / 2)), (z_val + (thickness / 2)), // 0
+			(x_val + (width / 2)), (y_val - (height / 2)), (z_val + (thickness / 2)), // 1
+			(x_val + (width / 2)), (y_val + (height / 2)), (z_val + (thickness / 2)), // 2
+			(x_val - (width / 2)), (y_val + (height / 2)), (z_val + (thickness / 2)), // 3
+			(x_val - (width / 2)), (y_val - (height / 2)), (z_val - (thickness / 2)), // 4
+			(x_val + (width / 2)), (y_val - (height / 2)), (z_val - (thickness / 2)), // 5
+			(x_val + (width / 2)), (y_val + (height / 2)), (z_val - (thickness / 2)), // 6
+			(x_val - (width / 2)), (y_val + (height / 2)), (z_val - (thickness / 2)) // 7
 	};
+	
+	GLfloat color_help[] = {
+			0.0, 0.0, 1.0,
+			1.0, 0.0, 1.0,
+			1.0, 1.0, 1.0,
+			0.0, 1.0, 1.0,
+			0.0, 0.0, 0.0,
+			1.0, 0.0, 0.0,
+			1.0, 1.0, 0.0,
+			0.0, 1.0, 0.0
+	};
+	
+
+	int indices[] = {
+			0,1,2,
+			0,2,3,
+			1,5,6,
+			1,6,2,
+			4,0,3,
+			4,3,7,
+			4,5,1,
+			4,1,0,
+			3,2,6,
+			3,6,7,
+			5,4,7,
+			5,7,6
+	};
+	GLfloat* vertex_buffer_data_tmp = (GLfloat*) malloc(3*36*sizeof(GLfloat));
+	GLfloat *color_buffer_data_tmp = (GLfloat *) malloc(3 * 36 * sizeof(GLfloat));
+	for (int i = 0; i < 36; i++) {
+		vertex_buffer_data_tmp[3*i] = vertex_help[3*indices[i]];
+		vertex_buffer_data_tmp[3*i+1] = vertex_help[3*indices[i]+1];
+		vertex_buffer_data_tmp[3*i+2] = vertex_help[3*indices[i]+2];
+
+		color_buffer_data_tmp[3*i] = color_help[3*indices[i]];
+		color_buffer_data_tmp[3*i+1] = color_help[3*indices[i]+1];
+		color_buffer_data_tmp[3*i+2] = color_help[3*indices[i]+2];
+	}
+
+	GLshort* index_buffer_data_tmp = (GLshort *) malloc(36 * sizeof(GLshort));
+	for (int i = 0; i < 36; i++) {
+		index_buffer_data_tmp[i] = i;
+	}
 	/* copy tmp data buffer into our buffer */
-	memcpy(vertex_buffer_data, vertex_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
-	memcpy(color_buffer_data, color_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
+	memcpy(vertex_buffer_data, vertex_buffer_data_tmp, 3*36 * sizeof(GLfloat));
+	memcpy(color_buffer_data, color_buffer_data_tmp, 3*36 * sizeof(GLfloat));
 	memcpy(index_buffer_data, index_buffer_data_tmp, 3 * 12 * sizeof(GLshort));
 	
 	compute_normals();
