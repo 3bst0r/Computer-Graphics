@@ -23,50 +23,68 @@ using namespace std;
 *
 *******************************************************************/
 Cylinder::Cylinder(int points, double radius, double height, double x_offset, double y_offset, double z_offset, double top_center_offset, float color_r, float color_g, float color_b)
-: Shape(points * 2 + 2, 4 * points){
+: Shape(points * 2 * 2 + 2, 4 * points) {
+	cout << "debug" << endl;
 	center_x = x_offset;
 	center_y = y_offset + height / 2;
 	center_z = z_offset;
 
-	for(int i = 0; i < 2 * points + 2; i++){
+	for (int i = 0; i < 4 * points + 2; i++) {
 		color_buffer_data[3 * i] = color_r;
 		color_buffer_data[3 * i + 1] = color_g;
 		color_buffer_data[3 * i + 2] = color_b;
 	}
-	for(int i = 0; i < points; i++){
+	/* create circles */
+	for (int i = 0; i < points; i++) {
 		vertex_buffer_data[3 * i] = radius * cos(M_PI * 2 * i / points) + x_offset;
 		vertex_buffer_data[3 * i + 1] = y_offset;
 		vertex_buffer_data[3 * i + 2] = radius * sin(M_PI * 2 * i / points) + z_offset;
-		
+
 		vertex_buffer_data[3 * points + 3 * i] = radius * cos(M_PI * 2 * i / points) + x_offset;
 		vertex_buffer_data[3 * points + 3 * i + 1] = y_offset + height;
 		vertex_buffer_data[3 * points + 3 * i + 2] = radius * sin(M_PI * 2 * i / points) + z_offset;
+
+		// duplicate vertices for hard edges
+		vertex_buffer_data[3 * i + 2 * 3 * points] = radius * cos(M_PI * 2 * i / points) + x_offset;
+		vertex_buffer_data[3 * i + 1 + 2 * 3 * points] = y_offset;
+		vertex_buffer_data[3 * i + 2 + 2 * 3 * points] = radius * sin(M_PI * 2 * i / points) + z_offset;
+
+		vertex_buffer_data[3 * points + 3 * i + 2 * 3 * points] = radius * cos(M_PI * 2 * i / points) + x_offset;
+		vertex_buffer_data[3 * points + 3 * i + 1 + 2 * 3 * points] = y_offset + height;
+		vertex_buffer_data[3 * points + 3 * i + 2 + 2 * 3 * points] = radius * sin(M_PI * 2 * i / points) + z_offset;
+
 	}
+
 	// set center
-	vertex_buffer_data[6 * points] = x_offset;
-	vertex_buffer_data[6 * points + 1] = y_offset;
-	vertex_buffer_data[6 * points + 2] = z_offset;
-	vertex_buffer_data[6 * points + 3] = x_offset;
-	vertex_buffer_data[6 * points + 4] = y_offset + height + top_center_offset;
-	vertex_buffer_data[6 * points + 5] = z_offset;
-	for(int i = 0; i < points; i++){
-		index_buffer_data[12 * i + 0] = i;
-		index_buffer_data[12 * i + 1] = (i + 1) % points;
-		index_buffer_data[12 * i + 2] = i + points;
-		
-		index_buffer_data[12 * i + 3] = i + points;
-		index_buffer_data[12 * i + 4] = (i + 1) % points + points;
-		index_buffer_data[12 * i + 5] = (i + 1) % points;
-		
+	vertex_buffer_data[4 * 3 * points] = x_offset;
+	vertex_buffer_data[4 * 3 * points + 1] = y_offset;
+	vertex_buffer_data[4 * 3 * points + 2] = z_offset;
+	vertex_buffer_data[4 * 3 * points + 3] = x_offset;
+	vertex_buffer_data[4 * 3 * points + 4] = y_offset + height + top_center_offset;
+	vertex_buffer_data[4 * 3 * points + 5] = z_offset;
+	cout << "debug1" << endl;
+	for (int i = 0; i < points; i++) {
+		// top
 		index_buffer_data[12 * i + 6] = i;
 		index_buffer_data[12 * i + 7] = (i + 1) % points;
-		index_buffer_data[12 * i + 8] = 2 * points;
-		
+		index_buffer_data[12 * i + 8] = 4 * points;
+		// bottom
 		index_buffer_data[12 * i + 9] = points + i;
 		index_buffer_data[12 * i + 10] = (i + 1) % points + points;
-		index_buffer_data[12 * i + 11] = 2 * points + 1;
+		index_buffer_data[12 * i + 11] = 4 * points + 1;
+
+		// sides
+		int j = i + 6 * points;
+		index_buffer_data[12 * i + 0] = j;
+		index_buffer_data[12 * i + 1] = (j + 1) % points;
+		index_buffer_data[12 * i + 2] = j + points;
+
+		index_buffer_data[12 * i + 3] = j + points;
+		index_buffer_data[12 * i + 4] = (j + 1) % points + points;
+		index_buffer_data[12 * i + 5] = (j + 1) % points;
 	}
 	compute_normals();
+	cout << "debug2" << endl;
 }
 
 /******************************************************************
