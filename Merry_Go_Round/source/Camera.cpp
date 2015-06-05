@@ -46,7 +46,7 @@ void Camera::right(float value) {
 
 void Camera::rotate(float degree, glm::vec3 axis) {
     glm::mat4 rotation = glm::rotate(glm::mat4(1), glm::radians(degree), axis);
-    if(abs(glm::vec3(rotation * glm::vec4(w, 1))[1]) > 0.8){    //max angle 0.8 * PI/2
+    if(abs(glm::vec3(rotation * glm::vec4(w, 1))[1]) > 0.9){    //max angle 0.8 * PI/2
         return;
     }
     w = glm::vec3(rotation * glm::vec4(w, 1));
@@ -56,7 +56,7 @@ void Camera::rotateAroundCenter(float degree,glm::vec3 axis) {
     glm::vec3 eye_old = eye;
     eye = glm::vec3(glm::rotate(glm::mat4(1), glm::radians(degree), axis) * glm::vec4(eye,1));
     focusOnCenter();
-    if(abs(w[1]) > 0.8){    //max angle 0.8 * PI/2
+    if(abs(w[1]) > 0.9){    //max angle 0.8 * PI/2
         eye = eye_old;
         focusOnCenter();
     }

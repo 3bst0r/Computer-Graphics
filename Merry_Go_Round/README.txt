@@ -21,4 +21,4 @@ SEMI-AUTO Mode:
 
 You can always reset the camera by pressing '0'.
 
-NOTE: The maximum rotation up and down is 0.8 * PI/2 rad.
+NOTE: The maximum rotation up and down is 0.9 * PI/2 rad.
