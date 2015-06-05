@@ -49,6 +49,7 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 	vertex_buffer_data[6 * points + 3] = x_offset;
 	vertex_buffer_data[6 * points + 4] = y_offset + height + top_center_offset;
 	vertex_buffer_data[6 * points + 5] = z_offset;
+	
 	for(int i = 0; i < points; i++){
 		index_buffer_data[12 * i + 0] = i;
 		index_buffer_data[12 * i + 1] = (i + 1) % points;

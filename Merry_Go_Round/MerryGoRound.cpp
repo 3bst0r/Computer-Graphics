@@ -147,6 +147,21 @@ void Display()
     }
     glUniformMatrix4fv(ViewUniform, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix()));
 
+	/* light */
+	GLint LightPos1Uniform = glGetUniformLocation(ShaderProgram, "LightPos1");
+	if (LightPos1Uniform == -1){
+		cerr << "Could not bind uniform LightPos1" << endl;
+		exit(-1);
+	}
+	glUniform3fv(LightPos1Uniform, 1, GL_FALSE, glm::value_ptr(lights[0]->pos));
+	
+	GLint LightColor1Uniform = glGetUniformLocation(ShaderProgram, "LightColor1");
+	if (LightColor1nUniform == -1){
+		cerr << "Could not bind uniform LightColor1" << endl;
+		exit(-1);
+	}
+	glUniform3fv(LightColor1Uniform, 1, GL_FALSE, glm::value_ptr(lights[0]->rgb));
+
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
     glEnableVertexAttribArray(vNormal);
