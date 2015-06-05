@@ -33,7 +33,7 @@ Shape::Shape(int vertex_number, int triangle_number){
 	index_buffer_data = (GLushort*)malloc(3 * triangle_number * sizeof(GLushort));
 	kS = 0.3;
 	kD = 0.3;
-	kA = 0.2;
+	kA = 0.3;
 }
 
 /******************************************************************

@@ -19,7 +19,7 @@
 			void rotateY(float angle);
 			void rotateZ(float angle);
 			void translate(float x, float y, float z);
-			void set_transformation(float* m);
+			void set_transformation(const float* m);
 			void multiply(const float* matrix2);
 	};
 

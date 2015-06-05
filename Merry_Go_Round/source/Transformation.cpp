@@ -171,7 +171,7 @@ void Transformation::multiply(const float* m2)
     memcpy(matrix, temp, 16*sizeof(float));
 }
 
-void Transformation::set_transformation(float* m){
+void Transformation::set_transformation(const float* m){
 	memcpy(matrix, m, 16 * sizeof(float));
 }
 

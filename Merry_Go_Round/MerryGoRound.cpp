@@ -53,16 +53,16 @@ using namespace std;
 GLboolean anim = GL_TRUE;
 
 /* Define handlers to vertex buffer objects */
-GLuint VBO[5];
+GLuint VBO[7];
 
 /* Define handlers to color buffer objects */
-GLuint CBO[5];
+GLuint CBO[7];
 
 /* Define handlers to index buffer objects */
-GLuint IBO[5];
+GLuint IBO[7];
 
 /* handlers for normal buffers */
-GLuint NBO[5];
+GLuint NBO[7];
 
 /*Define handlers to vertex buffer room_components*/
 GLuint VBR[2];
@@ -86,9 +86,8 @@ static const char* FragmentShaderString;
 GLuint ShaderProgram;
 
 Transformation ProjectionMatrix; /* Perspective projection matrix */
-Transformation ModelMatrix[5]; /* Model matrix */
+Transformation ModelMatrix[7]; /* Model matrix */
 Transformation RoomMatrix[1];
-Transformation LightMatrix[1];
 Transformation IdentityMatrix;
 Transformation InitialTransform;
 Camera camera(glm::vec3(0,0,10));
@@ -100,12 +99,13 @@ long t = glutGet(GLUT_ELAPSED_TIME);
 /* camera mode auto stuff */
 double auto_speed;
 
+/* on/off for ligthing */
 int ky = 1;
 int kx = 1;
 int kc = 1;
 
 /* displayable objects */
-Shape **objects = new Shape*[5];
+Shape **objects = new Shape*[6];
 
 /* walls and floor */
 Shape **room_components = new Shape*[1];
@@ -177,7 +177,7 @@ void Display()
 		cerr << "Could not bind uniform lightPos2" << endl;
 		exit(-1);
 	}
-	glUniform3fv(LightPos2Uniform, 1, glm::value_ptr(camera.viewMatrix() * glm::make_mat4(LightMatrix[0].matrix) * glm::vec4(lights[1]->pos, 1)));
+	glUniform3fv(LightPos2Uniform, 1, glm::value_ptr(camera.viewMatrix() * glm::transpose(glm::make_mat4(ModelMatrix[6].matrix)) * glm::vec4(lights[1]->pos, 1)));
 	GLint LightColor2Uniform = glGetUniformLocation(ShaderProgram, "lightColor2");
 	if (LightColor2Uniform == -1){
 		cerr << "Could not bind uniform lightColor2" << endl;
@@ -199,7 +199,7 @@ void Display()
     glEnableVertexAttribArray(vColor);
     glEnableVertexAttribArray(vNormal);
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 7; i++) {
 
         glUniform1f(kA, objects[i]->kA * ky);
         glUniform1f(kD, objects[i]->kD * kx);
@@ -552,7 +552,8 @@ void OnIdle()
 		ModelMatrix[2].set_transformation(TranslationMatrixAnim2.matrix);
 		ModelMatrix[3].set_transformation(TranslationMatrixAnim3.matrix);
 		ModelMatrix[4].set_transformation(TranslationMatrixAnim4.matrix);
-		LightMatrix[0].set_transformation(LightRotationMatrix.matrix);
+        ModelMatrix[5].set_transformation(glm::value_ptr(glm::mat4(1)));
+        ModelMatrix[6].set_transformation(LightRotationMatrix.matrix);
 	}
 
     /* Request redrawing of window content */
@@ -591,11 +592,28 @@ void initObjects() {
     objects[3] = new Model(horse, 0., 0.4, 2., .6, 0.545, 0.271, 0.075);
     objects[4] = new Model(horse, 0., 0.4, -2., .6, 0.545, 0.271, 0.075);
 
+    for(int i = 1; i < 5; i++){
+        objects[i]->kA = 0.1;
+        objects[i]->kD = 0.3;
+        objects[i]->kS = 0.5;
+    }
+
+    obj_scene_data sphere;
+    /* Load horse OBJ model */
+    char filename2[] = "models/sphere.obj";
+    if(!parse_obj_scene(&sphere, filename2)){
+        cerr << "Could not load file. Exiting." << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    objects[5] = new Model(sphere, 0., 2, 5., .1, 1., 1., 1.);
+    objects[6] = new Model(sphere, 0., 1., 5., .1, 0., 1., 0.);
+
     room_components[0] = new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0);
     room_components[1] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
 	/* set light sources */
-	lights[0] = new Lightsource(0.0, 5.0, -10.0, 1.0, 0.0, 0.0); //fixed light
-	lights[1] = new Lightsource(0., 3., -5., 0., 1., 0.); //light moving with the merry go round	
+	lights[0] = new Lightsource(0., 2, 5.0, 1.0, 1.0, 1.0); //fixed light
+	lights[1] = new Lightsource(0., 1., 5., 0., 1., 0.); //light moving with the merry go round
 	hsv_light1 = lights[0]->rgbToHsv(lights[0]->rgb);
 	h = hsv_light1[0];
 	s = hsv_light1[1];
@@ -613,7 +631,7 @@ void initObjects() {
 void SetupDataBuffers() {
 
     /* initialize buffers for objects */
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 7; i++) {
 
         glGenBuffers(1, &VBO[i]);
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
