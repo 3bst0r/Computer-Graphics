@@ -25,8 +25,8 @@ void main()
 	float spec1 = max(dot(v1, r1), 0.0);
 	float diff1 = max(dot(fNormal,s1), 0.0);
 	
-	vec4 diffColor1 = 0.7 * diff1 * fColor;
-	vec4 specColor1 = vec4(pow(spec1, 3) * lightColor1, 1.);
+	vec4 diffColor1 = 0.3 * diff1 * fColor;
+	vec4 specColor1 = 0.5 * vec4(pow(spec1, 3) * lightColor1, 1.);
 	
 	vec4 s2 = normalize(vec4(lightPos2, 1.) - fEye);
 	vec4 r2 = reflect(-s2, fNormal);
@@ -34,8 +34,8 @@ void main()
 	float spec2 = max(dot(v2,r2), 0.0);
 	float diff2 = max(dot(fNormal,s2), 0.0);
 	
-	vec4 diffColor2 = 0.7 * diff2 * fColor;
-	vec4 specColor2 = vec4(pow(spec2, 3) * lightColor2, 1.);
+	vec4 diffColor2 = 0.3 * diff2 * fColor;
+	vec4 specColor2 = 0.5 * vec4(pow(spec2, 3) * lightColor2, 1.);
 		
 	FragColor += diffColor1 + specColor1 + diffColor2 + specColor2;
 }

@@ -148,19 +148,33 @@ void Display()
     glUniformMatrix4fv(ViewUniform, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix()));
 
 	/* light */
-	GLint LightPos1Uniform = glGetUniformLocation(ShaderProgram, "LightPos1");
+	GLint LightPos1Uniform = glGetUniformLocation(ShaderProgram, "lightPos1");
 	if (LightPos1Uniform == -1){
-		cerr << "Could not bind uniform LightPos1" << endl;
+		cerr << "Could not bind uniform lightPos1" << endl;
 		exit(-1);
 	}
-	glUniform3fv(LightPos1Uniform, 1, GL_FALSE, glm::value_ptr(lights[0]->pos));
+	glUniform3fv(LightPos1Uniform, 1, glm::value_ptr(lights[0]->pos));
 	
-	GLint LightColor1Uniform = glGetUniformLocation(ShaderProgram, "LightColor1");
-	if (LightColor1nUniform == -1){
-		cerr << "Could not bind uniform LightColor1" << endl;
+	GLint LightColor1Uniform = glGetUniformLocation(ShaderProgram, "lightColor1");
+	if (LightColor1Uniform == -1){
+		cerr << "Could not bind uniform lightColor1" << endl;
 		exit(-1);
 	}
-	glUniform3fv(LightColor1Uniform, 1, GL_FALSE, glm::value_ptr(lights[0]->rgb));
+	glUniform3fv(LightColor1Uniform, 1, glm::value_ptr(lights[0]->rgb));
+
+	/* green moving light */
+	GLint LightPos2Uniform = glGetUniformLocation(ShaderProgram, "lightPos2");
+	if (LightPos2Uniform == -1){
+		cerr << "Could not bind uniform lightPos2" << endl;
+		exit(-1);
+	}
+	glUniform3fv(LightPos2Uniform, 1, glm::value_ptr(glm::make_mat4(LightMatrix[0].matrix) * glm::vec4(lights[1]->pos, 1)));
+	GLint LightColor2Uniform = glGetUniformLocation(ShaderProgram, "lightColor2");
+	if (LightColor2Uniform == -1){
+		cerr << "Could not bind uniform lightColor2" << endl;
+		exit(-1);
+	}
+	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));
 
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
@@ -190,19 +204,7 @@ void Display()
 			exit(-1);
 		}
 		glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix[i].matrix);
-
-        /*Transformation NormalMatrix;
-        NormalMatrix.multiply(glm::value_ptr(camera.viewMatrix()));
-        NormalMatrix.multiply(ModelMatrix[i].matrix);
-        GLint NormalUniform = glGetUniformLocation(ShaderProgram, "NormalMatrix");
-        if (NormalUniform == -1)
-        {
-            cerr << "Could not bind uniform NormalMatrix" << endl;
-            exit(-1);
-        }
-        glUniformMatrix4fv(NormalUniform, 1, GL_TRUE, NormalMatrix.matrix);*/
-
-        /* Issue draw command, using indexed triangle list */
+		
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
     
@@ -559,8 +561,8 @@ void initObjects() {
     room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
 	/* set light sources */
-	lights[0] = new Lightsource(-6.0, 6.0, 2.0, 1.0, 1.0, 1.0); //fixed light
-	lights[1] = new Lightsource(0., 2., 4.0, 0.5, 0., 0.); //light moving with the merry go round	
+	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 1.0, 1.0); //fixed light
+	lights[1] = new Lightsource(0., 0., -10.0, 0., 1., 0.); //light moving with the merry go round	
 }
 
 /******************************************************************

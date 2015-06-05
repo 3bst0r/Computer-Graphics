@@ -65,11 +65,11 @@ glm::vec3 Lightsource::rgbToHsv(glm::vec3 rgbVal){
 	if(M == 0){
 		s = 0;
 	}else{
-		s = 100 * (M - N)/M;
+		s = (M - N)/M;
 	}
 	
 	/*compute V*/
-	v = 100 * M;
+	v = M;
 	
 	return glm::vec3(h,s,v);
 }
