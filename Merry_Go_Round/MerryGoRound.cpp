@@ -110,6 +110,13 @@ Shape **room_components = new Shape*[0];
 
 /* light sources **/
 Lightsource **lights = new Lightsource*[2];
+glm::vec3 hsv_light1;
+
+/*variables for hsv manipulation*/
+float h;
+float s;
+float v;
+glm::vec3 newRgb;
 
 /*----------------------------------------------------------------*/
 
@@ -357,28 +364,23 @@ void OnIdle()
     int units_per_sec = 6;// for translation
     float dt = (glutGet(GLUT_ELAPSED_TIME) -t)/1000.; // elapsed time in seconds
     t = glutGet(GLUT_ELAPSED_TIME);
-    /*variables for hsv manipulation*/
-    float h = lights[0]->rgbToHsv(lights[0]->rgb)[0];
-	float s = lights[0]->rgbToHsv(lights[0]->rgb)[1];
-	float v = lights[0]->rgbToHsv(lights[0]->rgb)[2];
-	glm::vec3 newRgb;
     /* camera transformation */
     switch(currentKey) {
         case 'q':
         case 'Q':
             exit(0);
         case 'i':
-			s += 0.05;
-			if(s > 1.0){
-				s -= 1.0;
+			h += 10.0;
+			if(h > 360.0){
+				h -= 360.0;
 			}
 			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
 			lights[0]->rgb = newRgb;
 			break;
 		case 'k':
-			s -= 0.05;
-			if(s < 0.0){
-				s += 1.0;
+			h -= 10.0;
+			if(h < 0.0){
+				h += 360.0;
 			}
 			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
 			lights[0]->rgb = newRgb;
@@ -511,7 +513,9 @@ void OnIdle()
 		TranslationMatrixAnim4.rotateY(-5 * angle);
 		TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
 		
+		LightRotationMatrix.translate(0., -3., 5.); 
 		LightRotationMatrix.rotateY(angle/2);
+		LightRotationMatrix.translate(0., 3., -5.); 
 
 		/* Apply model rotation; finally move cube down */
 		ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
@@ -561,8 +565,12 @@ void initObjects() {
     room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
 	/* set light sources */
-	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 1.0, 1.0); //fixed light
+	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 0.0, 0.0); //fixed light
 	lights[1] = new Lightsource(0., 0., -10.0, 0., 1., 0.); //light moving with the merry go round	
+	hsv_light1 = lights[0]->rgbToHsv(lights[0]->rgb);
+	h = hsv_light1[0];
+	s = hsv_light1[1];
+	v = hsv_light1[2];
 }
 
 /******************************************************************
