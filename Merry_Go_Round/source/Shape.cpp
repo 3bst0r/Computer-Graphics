@@ -57,7 +57,7 @@ void Shape::compute_normals(){
 		glm::vec3 v1 = glm::vec3(vertex_buffer_data[index_buffer_data[3 * i]], vertex_buffer_data[index_buffer_data[3 * i] + 1], vertex_buffer_data[index_buffer_data[3 * i] + 2]);
 		glm::vec3 v2 = glm::vec3(vertex_buffer_data[index_buffer_data[3 * i + 1]], vertex_buffer_data[index_buffer_data[3 * i + 1] + 1], vertex_buffer_data[index_buffer_data[3 * i + 1] + 2]);
 		glm::vec3 v3 = glm::vec3(vertex_buffer_data[index_buffer_data[3 * i + 2]], vertex_buffer_data[index_buffer_data[3 * i + 2] + 1], vertex_buffer_data[index_buffer_data[3 * i + 2] + 2]);
-		glm::vec3 normal = glm::cross(v2 - v1, v3 - v1);
+		glm::vec3 normal = glm::normalize(glm::cross(v2 - v1, v3 - v1));
 		
 		normal_buffer_data[index_buffer_data[3 * i]] += normal[0];
 		normal_buffer_data[index_buffer_data[3 * i] + 1] += normal[1];

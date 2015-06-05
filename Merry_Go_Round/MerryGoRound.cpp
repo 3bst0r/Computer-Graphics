@@ -61,6 +61,9 @@ GLuint CBO[5];
 /* Define handlers to index buffer objects */
 GLuint IBO[5];
 
+/* handlers for normal buffers */
+GLuint NBO[5];
+
 /*Define handlers to vertex buffer room_components*/
 GLuint VBR;
 
@@ -80,7 +83,7 @@ GLuint CBL;
 GLuint IBL;
 
 /* Indices to vertex attributes; in this case positon and color */ 
-enum DataID {vPosition = 0, vColor = 1}; 
+enum DataID {vPosition = 0, vColor = 1, vNormal = 2};
 
 /* Strings for loading and storing shader code */
 static const char* VertexShaderString;
@@ -152,6 +155,7 @@ void Display()
 
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
+    glEnableVertexAttribArray(vNormal);
 
 	/*ModelMatrix*/
     for (int i = 0; i < 5; i++) {
@@ -161,6 +165,10 @@ void Display()
 
         glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
         glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[i]);
 
         GLint size;
@@ -212,8 +220,8 @@ void Display()
 
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
-    glDisableVertexAttribArray(vColor);   
-
+    glDisableVertexAttribArray(vColor);
+    glDisableVertexAttribArray(vNormal);
     /* Swap between front and back buffer */ 
     glutSwapBuffers();
 }
