@@ -237,6 +237,7 @@ void Display()
     glDisableVertexAttribArray(vPosition);
     glDisableVertexAttribArray(vColor);
     glDisableVertexAttribArray(vNormal);
+    
     /* Swap between front and back buffer */ 
     glutSwapBuffers();
 }
@@ -511,7 +512,9 @@ void OnIdle()
 		TranslationMatrixAnim4.rotateY(-5 * angle);
 		TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
 		
+		LightRotationMatrix.translate(0., -3., 5.); 
 		LightRotationMatrix.rotateY(angle/2);
+		LightRotationMatrix.translate(0., 3., -5.); 
 
 		/* Apply model rotation; finally move cube down */
 		ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
@@ -562,7 +565,7 @@ void initObjects() {
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
 	/* set light sources */
 	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 1.0, 1.0); //fixed light
-	lights[1] = new Lightsource(0., 0., -10.0, 0., 1., 0.); //light moving with the merry go round	
+	lights[1] = new Lightsource(0., 3., -5.0, 0., 1., 0.); //light moving with the merry go round	
 }
 
 /******************************************************************
