@@ -24,6 +24,11 @@ Camera:
 
 	NOTE: The maximum rotation up and down is 0.9 * PI/2 rad.
 
+Lighting:
+	Change Hue: Press 'i' or 'k'
+	Increase Value: Press 'o'
+	Decrease Value: Press 'l'
+	
 Shading:
 	Turn on/off components of the rendering:
 		ambient: Press 'y'
