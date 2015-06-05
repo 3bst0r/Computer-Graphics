@@ -405,32 +405,32 @@ void OnIdle()
 			if(h > 360.0){
 				h -= 360.0;
 			}
-			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
-			lights[0]->rgb = newRgb;
+			newRgb = lights[1]->hsvToRgb(glm::vec3(h,s,v));
+			lights[1]->rgb = newRgb;
 			break;
 		case 'k':
 			h -= 10.0;
 			if(h < 0.0){
 				h += 360.0;
 			}
-			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
-			lights[0]->rgb = newRgb;
+			newRgb = lights[1]->hsvToRgb(glm::vec3(h,s,v));
+			lights[1]->rgb = newRgb;
 			break;
 		case 'o':
 			v += 0.05;
 			if(v > 1.0){
 				v -= 1.0;
 			}
-			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
-			lights[0]->rgb = newRgb;
+			newRgb = lights[1]->hsvToRgb(glm::vec3(h,s,v));
+			lights[1]->rgb = newRgb;
 			break;
 		case 'l':
 			v -= 0.05;
 			if(v > 0.0){
 				v += 1.0;
 			}
-			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
-			lights[0]->rgb = newRgb;
+			newRgb = lights[1]->hsvToRgb(glm::vec3(h,s,v));
+			lights[1]->rgb = newRgb;
 			break;
     }
     switch(camera_mode) {
@@ -614,7 +614,7 @@ void initObjects() {
 	/* set light sources */
 	lights[0] = new Lightsource(0., 2, 5.0, 1.0, 1.0, 1.0); //fixed light
 	lights[1] = new Lightsource(0., 1., 5., 0., 1., 0.); //light moving with the merry go round
-	hsv_light1 = lights[0]->rgbToHsv(lights[0]->rgb);
+	hsv_light1 = lights[1]->rgbToHsv(lights[1]->rgb);
 	h = hsv_light1[0];
 	s = hsv_light1[1];
 	v = hsv_light1[2];
