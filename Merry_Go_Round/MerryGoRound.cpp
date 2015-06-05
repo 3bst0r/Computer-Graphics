@@ -73,14 +73,8 @@ GLuint CBR;
 /*Define handlers to index buffer room_components*/
 GLuint IBR;
 
-/*Define handlers to vertex buffer lights*/
-GLuint VBL;
-
-/*Define handlers to color buffer lights*/
-GLuint CBL;
-
-/*Define handlers to index buffer lights*/
-GLuint IBL;
+/*Define handlers to index buffer room_components*/
+GLuint NBR;
 
 /* Indices to vertex attributes; in this case positon and color */ 
 enum DataID {vPosition = 0, vColor = 1, vNormal = 2};
@@ -537,6 +531,10 @@ void SetupDataBuffers() {
         glGenBuffers(1, &CBO[i]);
         glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
         glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->color_buffer_data, GL_STATIC_DRAW);
+        
+        glGenBuffers(1, &NBO[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
+        glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->normal_buffer_data, GL_STATIC_DRAW);
     }
     
     /* initialize buffers for room components */
@@ -552,18 +550,9 @@ void SetupDataBuffers() {
     glBindBuffer(GL_ARRAY_BUFFER, CBR);
     glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[0]->color_buffer_data, GL_STATIC_DRAW);
     
-    /* initialize buffers for room components */
-    glGenBuffers(1, &VBL);
-    glBindBuffer(GL_ARRAY_BUFFER, VBL);
-    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat), lights[1]->vertex_buffer_data, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &IBL);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBL);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 1 * sizeof(GLfloat), lights[1]->index_buffer_data, GL_STATIC_DRAW);
-    
-    glGenBuffers(1, &CBL);
-    glBindBuffer(GL_ARRAY_BUFFER, CBL);
-    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(GLfloat), lights[1]->color_buffer_data, GL_STATIC_DRAW);
+    glGenBuffers(1, &NBR);
+    glBindBuffer(GL_ARRAY_BUFFER, NBR);
+    glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[0]->normal_buffer_data, GL_STATIC_DRAW);
     
 }
 
@@ -732,7 +721,6 @@ int main(int argc, char** argv)
     glutInitWindowSize(600, 600);
     glutInitWindowPosition(400, 400);
     glutCreateWindow("CG Proseminar - Merry-Go-Round");
-
 	/* Initialize GL extension wrangler */
 	glewExperimental = GL_TRUE;
     GLenum res = glewInit();

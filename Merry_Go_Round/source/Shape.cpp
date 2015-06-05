@@ -25,7 +25,6 @@ using namespace std;
 *
 *******************************************************************/
 Shape::Shape(int vertex_number, int triangle_number){
-	//cout << "Creating form with: vertex_number " << vertex_number << " triangle_number: " << triangle_number << endl;
 	this->vertex_number = vertex_number;
 	this->triangle_number = triangle_number;
 	vertex_buffer_data = (GLfloat*)malloc(3 * vertex_number * sizeof(GLfloat));
@@ -74,9 +73,9 @@ void Shape::compute_normals(){
 	
 	for(int i = 0; i < vertex_number; i++){
 		glm::vec3 normalized = glm::normalize(glm::vec3(normal_buffer_data[3 * i], normal_buffer_data[3 * i + 1], normal_buffer_data[3 * i + 2]));
-		normal_buffer_data[3 * i] = normalized[0];
-		normal_buffer_data[3 * i + 1] = normalized[1];
-		normal_buffer_data[3 * i + 2] = normalized[2];
+		normal_buffer_data[3 * i] = -normalized[0];
+		normal_buffer_data[3 * i + 1] = -normalized[1];
+		normal_buffer_data[3 * i + 2] = -normalized[2];
 	}
 }
 

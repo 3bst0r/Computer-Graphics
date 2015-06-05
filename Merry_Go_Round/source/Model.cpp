@@ -42,6 +42,8 @@ Model::Model(obj_scene_data model, float x, float y, float z, float scale, float
 		index_buffer_data[i*3+1] = (GLushort)(*model.face_list[i]).vertex_index[1];
 		index_buffer_data[i*3+2] = (GLushort)(*model.face_list[i]).vertex_index[2];
     }
+    
+    compute_normals();
 }
 
 /******************************************************************

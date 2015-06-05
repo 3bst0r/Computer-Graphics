@@ -64,6 +64,8 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 	memcpy(vertex_buffer_data, vertex_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
 	memcpy(color_buffer_data, color_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
 	memcpy(index_buffer_data, index_buffer_data_tmp, 3 * 12 * sizeof(GLshort));
+	
+	compute_normals();
 }
 
 /******************************************************************

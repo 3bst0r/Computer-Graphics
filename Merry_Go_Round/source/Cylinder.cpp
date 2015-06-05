@@ -66,6 +66,7 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 		index_buffer_data[12 * i + 10] = (i + 1) % points + points;
 		index_buffer_data[12 * i + 11] = 2 * points + 1;
 	}
+	compute_normals();
 }
 
 /******************************************************************

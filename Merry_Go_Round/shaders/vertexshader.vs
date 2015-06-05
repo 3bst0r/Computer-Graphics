@@ -15,6 +15,6 @@ out vec4 fColor;
 void main(){
    gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(vPosition.x, vPosition.y, vPosition.z, 1.0);
    fEye = ViewMatrix * ModelMatrix * vec4(vPosition, 1.0);
-   fNormal = normalize(ViewMatrix * ModelMatrix * vNormal);
+   fNormal = normalize(ViewMatrix * ModelMatrix * vec4(vNormal, 0.));
    fColor = vec4(vColor.r, vColor.g, vColor.b, 1.0);
 }
