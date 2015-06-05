@@ -567,34 +567,24 @@ glm::vec3 hsvToRgb(glm::vec3 hsvVal){
 	
 	double C = hsvVal.z * hsvVal.y;
 	double H = hsvVal.x/60;
-	double X = C * (1 -	glm::abs(glm::mod(H, 2) - 1)); 
+	double X = C * (1 -	glm::abs(((int)round(H) % 2) - 1)); 
 	double m = hsvVal.z - C;
-	double r;
-	double g;
-	double b;
-	glm::vec3 rgb;
 	
-	if(0 <= H < 1){
-		rgb = (C + m,X + m,0 + m);
-		return rgb;
-	}else if(1 <= H < 2){
-		rgb = (X + m,C + m,0 + m);
-		return rgb;
-	}else if(2 <= H < 3){
-		rgb = (0 + m,C + m,X + m);
-		return rgb;
-	}else if(3 <= H < 4){
-		rgb = (0 + m,X + m,C + m);
-		return rgb;
-	}else if(4 <= H < 5){
-		rgb = (X + m,0 + m,C + m);
-		return rgb;
-	}else if(5 <= H < 6){
-		rgb = (C + m,0 + m,X + m);
-		return rgb;
+	
+	if(0 <= H && H < 1){
+		return glm::vec3(C + m,X + m,0 + m);
+	}else if(1 <= H  && H < 2){
+		return glm::vec3(X + m,C + m,0 + m);
+	}else if(2 <= H && H < 3){
+		return glm::vec3(0 + m,C + m,X + m);
+	}else if(3 <= H && H < 4){
+		return glm::vec3(0 + m,X + m,C + m);
+	}else if(4 <= H && H < 5){
+		return glm::vec3(X + m,0 + m,C + m);
+	}else if(5 <= H && H < 6){
+		return glm::vec3(C + m,0 + m,X + m);
 	}else{
-		rgb = (0 + m,0 + m,0 + m);
-		return rgb;
+		return glm::vec3(0 + m,0 + m,0 + m);
 	}
 }
 
