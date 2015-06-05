@@ -100,7 +100,9 @@ long t = glutGet(GLUT_ELAPSED_TIME);
 /* camera mode auto stuff */
 double auto_speed;
 
-double height = 1;
+int y = 1;
+int x = 1;
+int c = 1;
 
 /* displayable objects */
 Shape **objects = new Shape*[5];
@@ -399,6 +401,15 @@ void OnIdle()
 			}
 			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
 			lights[0]->rgb = newRgb;
+			break;
+		case 'y':
+			y = !y;
+			break;
+		case 'x':
+			x = !x;
+			break;
+		case 'c':
+			c = !c;
 			break;
     }
     switch(camera_mode) {
