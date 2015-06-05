@@ -601,7 +601,7 @@ void initObjects() {
     }
 
     objects[5] = new Model(sphere, 0., 2, 5., .1, 1., 1., 1.);
-    objects[6] = new Model(sphere, 0., 1., 5., .1, 0., 1., 0.);
+    objects[6] = new Model(sphere, 0., 1., 5., .1, 1., 1., 1.);
 
     room_components[0] = new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0);
     room_components[1] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
