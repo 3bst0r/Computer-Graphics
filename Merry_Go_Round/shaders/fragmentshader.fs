@@ -12,10 +12,14 @@ uniform vec3 lightPos1;
 uniform vec3 lightColor1;
 uniform vec3 lightPos2;
 uniform vec3 lightColor2;
+uniform float kD; // diffuse
+uniform float kA; // ambient
+uniform float kS; // specular
+
 
 void main()
 {
-	vec4 ambientColor = 0.5 * fColor;
+	vec4 ambientColor = kA * fColor;
 
     FragColor = ambientColor;
 
@@ -25,8 +29,8 @@ void main()
 	float spec1 = max(dot(v1, r1), 0.0);
 	float diff1 = max(dot(fNormal,s1), 0.0);
 	
-	vec4 diffColor1 = 0.3 * diff1 * fColor;
-	vec4 specColor1 = 0.5 * vec4(pow(spec1, 3) * lightColor1, 1.);
+	vec4 diffColor1 = kD* diff1 * fColor;
+	vec4 specColor1 = kS * vec4(pow(spec1, 3) * lightColor1, 1.);
 	
 	vec4 s2 = normalize(vec4(lightPos2, 1.) - fEye);
 	vec4 r2 = reflect(-s2, fNormal);

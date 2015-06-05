@@ -31,6 +31,9 @@
 			double center_x;
 			double center_y;
 			double center_z;
+			GLfloat kD;
+			GLfloat kA;
+			GLfloat kS;
 	};
 	
 #endif
