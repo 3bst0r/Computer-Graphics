@@ -511,7 +511,7 @@ void OnIdle()
 			camera.rotateAroundCenter(angle * auto_speed, glm::vec3(0,1,0));
 		}
 
-		//RotationMatrixAnim.rotateY(angle);
+		RotationMatrixAnim.rotateY(angle);
 		RotationMatrixAnim.multiply(InitialTransform.matrix);
 
 		TranslationMatrixAnim1.translate(0.0, cos(angle/50)/5., 0.0);
