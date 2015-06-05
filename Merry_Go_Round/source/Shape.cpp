@@ -6,9 +6,14 @@
 *
 *******************************************************************/
 
+#define GLM_FORCE_RADIANS
+
 #include <iostream>
 #include <string.h>
 #include "Shape.h"
+#include "../glm/glm.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
+#include "../glm/gtx/string_cast.hpp"
 
 using namespace std;
 
@@ -25,6 +30,7 @@ Shape::Shape(int vertex_number, int triangle_number){
 	this->triangle_number = triangle_number;
 	vertex_buffer_data = (GLfloat*)malloc(3 * vertex_number * sizeof(GLfloat));
 	color_buffer_data = (GLfloat*)malloc(3 * vertex_number * sizeof(GLfloat));
+	normal_buffer_data = (GLfloat*)calloc(3 * vertex_number, sizeof(GLfloat));
 	index_buffer_data = (GLushort*)malloc(3 * triangle_number * sizeof(GLushort));
 }
 
@@ -42,6 +48,36 @@ Shape::~Shape(){
 		free(color_buffer_data);
 	if(index_buffer_data != NULL)
 		free(index_buffer_data);
+	if(normal_buffer_data != NULL)
+		free(normal_buffer_data);
+}
+
+void Shape::compute_normals(){
+	for(int i = 0; i < triangle_number; i++){
+		glm::vec3 v1 = glm::vec3(vertex_buffer_data[index_buffer_data[3 * i]], vertex_buffer_data[index_buffer_data[3 * i] + 1], vertex_buffer_data[index_buffer_data[3 * i] + 2]);
+		glm::vec3 v2 = glm::vec3(vertex_buffer_data[index_buffer_data[3 * i + 1]], vertex_buffer_data[index_buffer_data[3 * i + 1] + 1], vertex_buffer_data[index_buffer_data[3 * i + 1] + 2]);
+		glm::vec3 v3 = glm::vec3(vertex_buffer_data[index_buffer_data[3 * i + 2]], vertex_buffer_data[index_buffer_data[3 * i + 2] + 1], vertex_buffer_data[index_buffer_data[3 * i + 2] + 2]);
+		glm::vec3 normal = glm::cross(v2 - v1, v3 - v1);
+		
+		normal_buffer_data[index_buffer_data[3 * i]] += normal[0];
+		normal_buffer_data[index_buffer_data[3 * i] + 1] += normal[1];
+		normal_buffer_data[index_buffer_data[3 * i] + 2] += normal[2];
+		
+		normal_buffer_data[index_buffer_data[3 * i + 1]] += normal[0];
+		normal_buffer_data[index_buffer_data[3 * i + 1] + 1] += normal[1];
+		normal_buffer_data[index_buffer_data[3 * i + 1] + 2] += normal[2];
+		
+		normal_buffer_data[index_buffer_data[3 * i + 2]] += normal[0];
+		normal_buffer_data[index_buffer_data[3 * i + 2] + 1] += normal[1];
+		normal_buffer_data[index_buffer_data[3 * i + 2] + 2] += normal[2];
+	}
+	
+	for(int i = 0; i < vertex_number; i++){
+		glm::vec3 normalized = glm::normalize(glm::vec3(normal_buffer_data[3 * i], normal_buffer_data[3 * i + 1], normal_buffer_data[3 * i + 2]));
+		normal_buffer_data[3 * i] = normalized[0];
+		normal_buffer_data[3 * i + 1] = normalized[1];
+		normal_buffer_data[3 * i + 2] = normalized[2];
+	}
 }
 
 /******************************************************************

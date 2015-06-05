@@ -33,7 +33,6 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 		color_buffer_data[3 * i + 1] = color_g;
 		color_buffer_data[3 * i + 2] = color_b;
 	}
-	
 	for(int i = 0; i < points; i++){
 		vertex_buffer_data[3 * i] = radius * cos(M_PI * 2 * i / points) + x_offset;
 		vertex_buffer_data[3 * i + 1] = y_offset;
@@ -43,16 +42,13 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 		vertex_buffer_data[3 * points + 3 * i + 1] = y_offset + height;
 		vertex_buffer_data[3 * points + 3 * i + 2] = radius * sin(M_PI * 2 * i / points) + z_offset;
 	}
-	
 	// set center
 	vertex_buffer_data[6 * points] = x_offset;
 	vertex_buffer_data[6 * points + 1] = y_offset;
 	vertex_buffer_data[6 * points + 2] = z_offset;
-	
 	vertex_buffer_data[6 * points + 3] = x_offset;
 	vertex_buffer_data[6 * points + 4] = y_offset + height + top_center_offset;
 	vertex_buffer_data[6 * points + 5] = z_offset;
-	
 	for(int i = 0; i < points; i++){
 		index_buffer_data[12 * i + 0] = i;
 		index_buffer_data[12 * i + 1] = (i + 1) % points;
@@ -69,7 +65,7 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 		index_buffer_data[12 * i + 9] = points + i;
 		index_buffer_data[12 * i + 10] = (i + 1) % points + points;
 		index_buffer_data[12 * i + 11] = 2 * points + 1;
-	}	
+	}
 }
 
 /******************************************************************

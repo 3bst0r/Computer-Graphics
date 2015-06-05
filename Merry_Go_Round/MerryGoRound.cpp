@@ -209,28 +209,6 @@ void Display()
 
     /* Issue draw command, using indexed triangle list */
     glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
-    
-    /*LightMatrix*/
-    glBindBuffer(GL_ARRAY_BUFFER, VBL);
-    glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, CBL);
-    glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBL);
-
-    GLint size_l;
-    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size_l);
-    
-    GLint LightUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
-	if (LightUniform == -1){
-		cerr << "Could not bind uniform LightMatrix" << endl;
-		exit(-1);
-	}
-	glUniformMatrix4fv(LightUniform, 1, GL_FALSE, LightMatrix[0].matrix); 
-
-    /* Issue draw command, using indexed triangle list */
-    glDrawElements(GL_TRIANGLES, size_l/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
-
 
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
@@ -506,6 +484,7 @@ void initObjects() {
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, -2., 0.2, 0., 0., 0., 0., 1.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, 2., 0., 0., 0., 1.));
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 0., 0.2, -2., 0., 0., 0., 1.));
+
     obj_scene_data horse;
     /* Load horse OBJ model */
     char filename[] = "models/horse.obj";
@@ -513,16 +492,17 @@ void initObjects() {
         cerr << "Could not load file. Exiting." << endl;
         exit(EXIT_FAILURE);
 	}
+
     objects[1] = new Model(horse, 2., 0.4, 0., .6, 0.545, 0.271, 0.075);
     objects[2] = new Model(horse, -2., 0.4, 0., .6, 0.545, 0.271, 0.075);
     objects[3] = new Model(horse, 0., 0.4, 2., .6, 0.545, 0.271, 0.075);
     objects[4] = new Model(horse, 0., 0.4, -2., .6, 0.545, 0.271, 0.075);
+
     room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
 	/* set light sources */
 	lights[0] = new Lightsource(-6.0, 6.0, 2.0, 1.0, 1.0, 1.0); //fixed light
-	lights[1] = new Lightsource(0., 2., 4.0, 0.5, 0., 0.); //light moving with the merry go round
-	
+	lights[1] = new Lightsource(0., 2., 4.0, 0.5, 0., 0.); //light moving with the merry go round	
 }
 
 /******************************************************************
@@ -736,7 +716,6 @@ int main(int argc, char** argv)
 {
 	/* initialize objects */
     initObjects();
-
     /* Initialize GLUT; set double buffered window and RGBA color model */
     glutInit(&argc, argv);
 	glutInitContextVersion(3, 3);

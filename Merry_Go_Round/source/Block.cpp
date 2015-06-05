@@ -36,7 +36,6 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 		 (x_val + (width/2)), (y_val + (height/2)),  (z_val - (thickness/2)),
 		 (x_val - (width/2)), (y_val + (height/2)),  (z_val - (thickness/2)),
 	};   
-
 	GLfloat color_buffer_data_tmp[] = { /* RGB color values for 8 vertices */
 		0.0, 0.0, 1.0,
 		1.0, 0.0, 1.0,
@@ -47,7 +46,6 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 		1.0, 1.0, 0.0,
 		0.0, 1.0, 0.0,
 	}; 
-
 	GLushort index_buffer_data_tmp[] = { /* Indices of 6*2 triangles (6 sides) */
 		0, 1, 2,
 		2, 3, 0,
@@ -62,7 +60,6 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 		3, 2, 6,
 		6, 7, 3,
 	};
-	
 	/* copy tmp data buffer into our buffer */
 	memcpy(vertex_buffer_data, vertex_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
 	memcpy(color_buffer_data, color_buffer_data_tmp, 3 * 8 * sizeof(GLfloat));
