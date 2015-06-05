@@ -517,7 +517,7 @@ void OnIdle()
 			camera.rotateAroundCenter(angle * auto_speed, glm::vec3(0,1,0));
 		}
 
-		RotationMatrixAnim.rotateY(angle);
+		//RotationMatrixAnim.rotateY(angle);
 		RotationMatrixAnim.multiply(InitialTransform.matrix);
 
 		TranslationMatrixAnim1.translate(0.0, cos(angle/50)/5., 0.0);
@@ -570,8 +570,8 @@ void OnIdle()
 
 void initObjects() {
 	/* create the basic shape */
-    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
-    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
+    objects[0] = new Cylinder(500, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
+    objects[0]->add_shape(new Cylinder(500, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
     objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0., 0., 1., 1., 0.));
 
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0., 0., 0., 0., 1.));
@@ -599,8 +599,8 @@ void initObjects() {
     }
 
     obj_scene_data sphere;
-    /* Load horse OBJ model */
-    char filename2[] = "models/sphere.obj";
+    /* Load sphere OBJ model */
+    char filename2[] = "models/Sphere.obj";
     if(!parse_obj_scene(&sphere, filename2)){
         cerr << "Could not load file. Exiting." << endl;
         exit(EXIT_FAILURE);
