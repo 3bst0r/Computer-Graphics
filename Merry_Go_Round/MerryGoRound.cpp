@@ -244,6 +244,7 @@ void Display()
     glDisableVertexAttribArray(vPosition);
     glDisableVertexAttribArray(vColor);
     glDisableVertexAttribArray(vNormal);
+    
     /* Swap between front and back buffer */ 
     glutSwapBuffers();
 }
@@ -571,6 +572,8 @@ void initObjects() {
 	h = hsv_light1[0];
 	s = hsv_light1[1];
 	v = hsv_light1[2];
+	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 1.0, 1.0); //fixed light
+	lights[1] = new Lightsource(0., 3., -5.0, 0., 1., 0.); //light moving with the merry go round	
 }
 
 /******************************************************************
