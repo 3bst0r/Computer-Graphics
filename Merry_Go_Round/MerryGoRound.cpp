@@ -4,7 +4,7 @@
 *
 * Computer Graphics Proseminar SS 2015
 * 
-*
+* Hartl Martin, Cvjetkovic Bojan and Ebster Johannes
 *
 *******************************************************************/
 
