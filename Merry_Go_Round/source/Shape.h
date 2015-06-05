@@ -19,6 +19,7 @@
 			void compute_normals();
 			void print_vertices();
 			void print_indices();
+			void print_normals();
 			void add_shape(Shape* shape);
 			
 			GLfloat* vertex_buffer_data;

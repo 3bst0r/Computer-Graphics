@@ -197,6 +197,10 @@ void Display()
 
     glBindBuffer(GL_ARRAY_BUFFER, CBR);
     glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, NBR);
+    glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR);
 
     GLint size;
