@@ -418,17 +418,11 @@ void OnIdle()
 			break;
 		case 'o':
 			v += 0.05;
-			if(v > 1.0){
-				v -= 1.0;
-			}
 			newRgb = lights[1]->hsvToRgb(glm::vec3(h,s,v));
 			lights[1]->rgb = newRgb;
 			break;
 		case 'l':
 			v -= 0.05;
-			if(v > 0.0){
-				v += 1.0;
-			}
 			newRgb = lights[1]->hsvToRgb(glm::vec3(h,s,v));
 			lights[1]->rgb = newRgb;
 			break;
