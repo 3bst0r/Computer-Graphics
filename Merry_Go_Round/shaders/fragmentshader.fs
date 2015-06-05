@@ -1,7 +1,5 @@
 #version 330 core
 
-const int max_lights = 2;
-
 in vec4 fColor;
 in vec4 fEye;
 in vec4 fNormal;
@@ -10,8 +8,10 @@ out vec4 FragColor;
 
 uniform vec3 lightPos1;
 uniform vec3 lightColor1;
+
 uniform vec3 lightPos2;
 uniform vec3 lightColor2;
+
 uniform float kD; // diffuse
 uniform float kA; // ambient
 uniform float kS; // specular
@@ -19,27 +19,20 @@ uniform float kS; // specular
 
 void main()
 {
-	vec4 ambientColor = kA * fColor;
+    FragColor = kA * fColor;	//ambient color
+	float diff, spec;
+	
+	//light source 1
+	diff = max(dot(fNormal, normalize(vec4(lightPos1, 1.) - fEye)), 0.0);
+	spec = max(dot(normalize(-fEye), reflect(-normalize(vec4(lightPos1, 1.) - fEye), fNormal)), 0.0);
 
-    FragColor = ambientColor;
+	FragColor += kD * diff * (0.2 * vec4(lightColor1, 1.) + 0.8 * fColor);
+	FragColor += kS * pow(spec, 2) * (0.2 * vec4(lightColor1, 1.) + 0.8 * vec4(1., 1., 1., 1.));
+	
+	//light source 2
+	diff = max(dot(fNormal, normalize(vec4(lightPos2, 1.) - fEye)), 0.0);
+	spec = max(dot(normalize(-fEye), reflect(-normalize(vec4(lightPos2, 1.) - fEye), fNormal)), 0.0);
 
-	vec4 s1 = normalize(vec4(lightPos1, 1.) - fEye);
-	vec4 r1 = reflect(-s1, fNormal);
-	vec4 v1 = normalize(-fEye);
-	float spec1 = max(dot(v1, r1), 0.0);
-	float diff1 = max(dot(fNormal,s1), 0.0);
-	
-	vec4 diffColor1 = kD* diff1 * fColor;
-	vec4 specColor1 = kS * vec4(pow(spec1, 3) * lightColor1, 1.);
-	
-	vec4 s2 = normalize(vec4(lightPos2, 1.) - fEye);
-	vec4 r2 = reflect(-s2, fNormal);
-	vec4 v2 = normalize(-fEye);
-	float spec2 = max(dot(v2,r2), 0.0);
-	float diff2 = max(dot(fNormal,s2), 0.0);
-	
-	vec4 diffColor2 = 0.3 * diff2 * fColor;
-	vec4 specColor2 = 0.5 * vec4(pow(spec2, 3) * lightColor2, 1.);
-		
-	FragColor += diffColor1 + specColor1 + diffColor2 + specColor2;
+	FragColor += kD * diff * (0.2 * vec4(lightColor2, 1.) + 0.8 * fColor);
+	FragColor += kS * pow(spec, 2) * (0.2 * vec4(lightColor2, 1.) + 0.8 * vec4(1., 1., 1., 1.));
 }
