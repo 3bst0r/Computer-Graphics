@@ -185,18 +185,32 @@ void Display()
 	}
 	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));
 
+    GLint kA = glGetUniformLocation(ShaderProgram, "kA");
+    GLint kD = glGetUniformLocation(ShaderProgram, "kD");
+    GLint kS = glGetUniformLocation(ShaderProgram, "kS");
+    if (kA == -1 || kD == -1 || kS == -1)
+    {
+        cout << kA << kD << kS << endl;
+        cerr << "Could not bind uniform light constants" << endl;
+        exit(-1);
+    }
+
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
     glEnableVertexAttribArray(vNormal);
 
-	/*ModelMatrix*/
     for (int i = 0; i < 5; i++) {
+
+        glUniform1f(kA, objects[i]->kA);
+        glUniform1f(kD, objects[i]->kS);
+        glUniform1f(kS, objects[i]->kD);
+
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
         glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
-        glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
+        glVertexAttribPointer(vColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
         glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -206,15 +220,14 @@ void Display()
         GLint size;
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
-		GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
-		if (RotationUniform == -1) 
-		{
-			cerr << "Could not bind uniform ModelMatrix" << endl;
-			exit(-1);
-		}
-		glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix[i].matrix);
-		
-        glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+        GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+        if (RotationUniform == -1) {
+            cerr << "Could not bind uniform ModelMatrix" << endl;
+            exit(-1);
+        }
+        glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix[i].matrix);
+
+        glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
     
     /*RoomMatrix*/
