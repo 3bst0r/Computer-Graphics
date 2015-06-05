@@ -162,7 +162,7 @@ void Display()
 		cerr << "Could not bind uniform lightPos1" << endl;
 		exit(-1);
 	}
-	glUniform3fv(LightPos1Uniform, 1, glm::value_ptr(lights[0]->pos));
+	glUniform3fv(LightPos1Uniform, 1, glm::value_ptr(camera.viewMatrix() * glm::vec4(lights[0]->pos, 1.0)));
 	
 	GLint LightColor1Uniform = glGetUniformLocation(ShaderProgram, "lightColor1");
 	if (LightColor1Uniform == -1){
@@ -177,23 +177,13 @@ void Display()
 		cerr << "Could not bind uniform lightPos2" << endl;
 		exit(-1);
 	}
-	glUniform3fv(LightPos2Uniform, 1, glm::value_ptr(glm::make_mat4(LightMatrix[0].matrix) * glm::vec4(lights[1]->pos, 1)));
+	glUniform3fv(LightPos2Uniform, 1, glm::value_ptr(camera.viewMatrix() * glm::make_mat4(LightMatrix[0].matrix) * glm::vec4(lights[1]->pos, 1)));
 	GLint LightColor2Uniform = glGetUniformLocation(ShaderProgram, "lightColor2");
 	if (LightColor2Uniform == -1){
 		cerr << "Could not bind uniform lightColor2" << endl;
 		exit(-1);
 	}
 	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));
-	
-	cout << "green light pos: ";
-	for(int i = 0; i < 3; i++)
-		cout << (glm::make_mat4(LightMatrix[0].matrix) * glm::vec4(lights[1]->pos, 1))[i] << " ";
-	cout << endl;
-	
-	cout << "green light color: ";
-	for(int i = 0; i < 3; i++)
-		cout << lights[1]->rgb[i] << " ";
-	cout << endl;
 
     GLint kA = glGetUniformLocation(ShaderProgram, "kA");
     GLint kD = glGetUniformLocation(ShaderProgram, "kD");
@@ -550,9 +540,7 @@ void OnIdle()
 		TranslationMatrixAnim4.rotateY(-5 * angle);
 		TranslationMatrixAnim4.translate(-objects[4]->center_x, -objects[4]->center_y, -objects[4]->center_z);
 		
-		LightRotationMatrix.translate(0., 0., -3.); 
 		LightRotationMatrix.rotateY(angle/2);
-		LightRotationMatrix.translate(0., 0., 3.); 
 
 		/* Apply model rotation; finally move cube down */
 		ModelMatrix[0].set_transformation(RotationMatrixAnim.matrix);
@@ -577,8 +565,8 @@ void OnIdle()
 
 void initObjects() {
 	/* create the basic shape */
-    objects[0] = new Cylinder(150, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
-    objects[0]->add_shape(new Cylinder(4, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
+    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
+    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
     objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0., 0., 1., 1., 0.));
 
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0., 0., 0., 0., 1.));
@@ -602,14 +590,12 @@ void initObjects() {
     room_components[0] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
     room_components[0]->add_shape(new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0));
 	/* set light sources */
-	lights[0] = new Lightsource(0.0, 6.0, 0.0, 1.0, 0.0, 0.0); //fixed light
-	lights[1] = new Lightsource(0., 0., -10.0, 0., 1., 0.); //light moving with the merry go round	
+	lights[0] = new Lightsource(0.0, 5.0, -10.0, 1.0, 0.0, 0.0); //fixed light
+	lights[1] = new Lightsource(0., 3., -5., 0., 1., 0.); //light moving with the merry go round	
 	hsv_light1 = lights[0]->rgbToHsv(lights[0]->rgb);
 	h = hsv_light1[0];
 	s = hsv_light1[1];
 	v = hsv_light1[2];
-	lights[0] = new Lightsource(0.0, 0.0, -10.0, 1.0, 1.0, 1.0); //fixed light
-	lights[1] = new Lightsource(0., 0., 3.0, 0., 1., 0.); //light moving with the merry go round	
 }
 
 /******************************************************************
