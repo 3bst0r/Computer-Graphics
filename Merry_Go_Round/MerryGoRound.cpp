@@ -355,11 +355,48 @@ void OnIdle()
     int units_per_sec = 6;// for translation
     float dt = (glutGet(GLUT_ELAPSED_TIME) -t)/1000.; // elapsed time in seconds
     t = glutGet(GLUT_ELAPSED_TIME);
+    /*variables for hsv manipulation*/
+    float h = lights[0]->rgbToHsv(lights[0]->rgb)[0];
+	float s = lights[0]->rgbToHsv(lights[0]->rgb)[1];
+	float v = lights[0]->rgbToHsv(lights[0]->rgb)[2];
+	glm::vec3 newRgb;
     /* camera transformation */
     switch(currentKey) {
         case 'q':
         case 'Q':
             exit(0);
+        case 'i':
+			s += 0.05;
+			if(s > 1.0){
+				s -= 1.0;
+			}
+			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
+			lights[0]->rgb = newRgb;
+			break;
+		case 'k':
+			s -= 0.05;
+			if(s < 0.0){
+				s += 1.0;
+			}
+			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
+			lights[0]->rgb = newRgb;
+			break;
+		case 'o':
+			v += 0.05;
+			if(v > 1.0){
+				v -= 1.0;
+			}
+			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
+			lights[0]->rgb = newRgb;
+			break;
+		case 'l':
+			v -= 0.05;
+			if(v > 0.0){
+				v += 1.0;
+			}
+			newRgb = lights[0]->hsvToRgb(glm::vec3(h,s,v));
+			lights[0]->rgb = newRgb;
+			break;
     }
     switch(camera_mode) {
         case AUTO:
@@ -524,83 +561,6 @@ void initObjects() {
 	/* set light sources */
 	lights[0] = new Lightsource(-6.0, 6.0, 2.0, 1.0, 1.0, 1.0); //fixed light
 	lights[1] = new Lightsource(0., 2., 4.0, 0.5, 0., 0.); //light moving with the merry go round	
-}
-
-
-/******************************************************************
-*
-* rgbToHsv
-*
-* converts rgb values to hsv
-*
-*******************************************************************/
-
-glm::vec3 rgbToHsv(glm::vec3 rgbVal){
-	
-	float M = glm::max(glm::max(rgbVal.x, rgbVal.z), rgbVal.z);
-	float N = glm::min(glm::min(rgbVal.x, rgbVal.z), rgbVal.z);
-	double h;
-	double s;
-	double v;
-	
-	/*compute H*/
-	if(M == N){
-		h = 0;
-	}else if(M == rgbVal.x){
-		h = 60 * (0 + (rgbVal.y - rgbVal.z)/(M - N));
-	}else if(M == rgbVal.y){
-		h = 60 * (2 + (rgbVal.z - rgbVal.x)/(M - N));
-	}else{
-		h = 60 * (4 + (rgbVal.x - rgbVal.z)/(M - N));
-	}
-	if(h <0){
-		h += 360;
-	}
-	
-	/*compute S*/
-	if(M == 0){
-		s = 0;
-	}else{
-		s = 100 * (M - N)/M;
-	}
-	
-	/*compute V*/
-	v = 100 * M;
-	
-	return glm::vec3(h,s,v);
-}
-
-/******************************************************************
-*
-* hsvToRgb
-*
-* converts hsv values to rgb
-*
-*******************************************************************/
-
-glm::vec3 hsvToRgb(glm::vec3 hsvVal){
-	
-	double C = hsvVal.z * hsvVal.y;
-	double H = hsvVal.x/60;
-	double X = C * (1 -	glm::abs(((int)round(H) % 2) - 1)); 
-	double m = hsvVal.z - C;
-	
-	
-	if(0 <= H && H < 1){
-		return glm::vec3(C + m,X + m,0 + m);
-	}else if(1 <= H  && H < 2){
-		return glm::vec3(X + m,C + m,0 + m);
-	}else if(2 <= H && H < 3){
-		return glm::vec3(0 + m,C + m,X + m);
-	}else if(3 <= H && H < 4){
-		return glm::vec3(0 + m,X + m,C + m);
-	}else if(4 <= H && H < 5){
-		return glm::vec3(X + m,0 + m,C + m);
-	}else if(5 <= H && H < 6){
-		return glm::vec3(C + m,0 + m,X + m);
-	}else{
-		return glm::vec3(0 + m,0 + m,0 + m);
-	}
 }
 
 /******************************************************************
