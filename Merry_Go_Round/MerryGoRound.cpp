@@ -54,17 +54,20 @@ using namespace std;
 /* Flag for starting/stopping animation */
 GLboolean anim = GL_TRUE;
 
-/* Define handlers to vertex buffer objects */
+/* handlers to vertex buffer objects */
 GLuint VBO[7];
 
-/* Define handlers to color buffer objects */
+/* handlers to color buffer objects */
 GLuint CBO[7];
 
-/* Define handlers to index buffer objects */
+/* handlers to index buffer objects */
 GLuint IBO[7];
 
 /* handlers for normal buffers */
 GLuint NBO[7];
+
+/* handlers for texture coordinate buffers */
+GLuint TCBO[7];
 
 /*Define handlers to vertex buffer room_components*/
 GLuint VBR[2];
@@ -79,7 +82,7 @@ GLuint IBR[2];
 GLuint NBR[2];
 
 /* Indices to vertex attributes; in this case positon and color */ 
-enum DataID {vPosition = 0, vColor = 1, vNormal = 2};
+enum DataID {vPosition = 0, vColor = 1, vNormal = 2, vUV = 3};
 
 /* Strings for loading and storing shader code */
 static const char* VertexShaderString;
@@ -120,7 +123,7 @@ glm::vec3 hsv_light1;
 float h,s,v;
 glm::vec3 newRgb;
 
-Texture crackles("data/crackles.bmp");
+Texture* crackles;
 
 /*----------------------------------------------------------------*/
 
@@ -197,9 +200,22 @@ void Display()
         exit(-1);
     }
 
+    /* Activate first (and only) texture unit */
+    glActiveTexture(GL_TEXTURE0);
+
+    /* Bind current texture  */
+    glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
+
+    /* Get texture uniform handle from fragment shader */
+    GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
+
+    /* Set location of uniform sampler variable */
+    glUniform1i(TextureUniform, 0);
+
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
     glEnableVertexAttribArray(vNormal);
+    glEnableVertexAttribArray(vUV);
 
     for (int i = 0; i < 7; i++) {
 
@@ -213,6 +229,9 @@ void Display()
 
         glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
         glVertexAttribPointer(vColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, TCBO[i]);
+        glVertexAttribPointer(vUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
         glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -265,7 +284,8 @@ void Display()
     glDisableVertexAttribArray(vPosition);
     glDisableVertexAttribArray(vColor);
     glDisableVertexAttribArray(vNormal);
-    
+    glDisableVertexAttribArray(vUV);
+
     /* Swap between front and back buffer */ 
     glutSwapBuffers();
 }
@@ -644,6 +664,11 @@ void SetupDataBuffers() {
         glGenBuffers(1, &NBO[i]);
         glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
         glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->normal_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &TCBO[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, TCBO[i]);
+        glBufferData(GL_ARRAY_BUFFER, 2 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->uv_buffer_data,
+                     GL_STATIC_DRAW);
     }
     for (int i = 0; i < 2; i++) {
 
@@ -823,23 +848,25 @@ void Initialize(void)
 int main(int argc, char** argv)
 {
 	/* initialize objects */
-    initObjects();
     /* Initialize GLUT; set double buffered window and RGBA color model */
     glutInit(&argc, argv);
-	glutInitContextVersion(3, 3);
-	glutInitContextProfile(GLUT_CORE_PROFILE);
+    glutInitContextVersion(3, 3);
+    glutInitContextProfile(GLUT_CORE_PROFILE);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(600, 600);
     glutInitWindowPosition(400, 400);
     glutCreateWindow("CG Proseminar - Merry-Go-Round");
-	/* Initialize GL extension wrangler */
-	glewExperimental = GL_TRUE;
+    /* Initialize GL extension wrangler */
+    glewExperimental = GL_TRUE;
     GLenum res = glewInit();
-    if (res != GLEW_OK) 
+    if (res != GLEW_OK)
     {
         cerr << "Error: '" << glewGetErrorString(res) << "'" << endl;
         return 1;
     }
+
+    initObjects();
+    crackles = new Texture("data/crackles.bmp");
 
     /* Setup scene and rendering parameters */
     Initialize();

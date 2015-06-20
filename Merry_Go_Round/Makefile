@@ -3,7 +3,7 @@ CC = g++
 OBJ = Cube.o Cylinder.o LoadShader.o Shape.o Transformation.o  OBJParser.o List.o StringExtra.o Model.o Camera.o Block.o Lightsource.o Texture.o
 TARGET = MerryGoRound
 
-CFLAGS = -g -Wall
+CFLAGS = -ggdb -Wall 
 LDLIBS = -lm -lglut -lGLEW -lGL
 INCLUDES = -Isource
 

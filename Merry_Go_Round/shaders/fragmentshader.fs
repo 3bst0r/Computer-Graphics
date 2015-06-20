@@ -3,6 +3,7 @@
 in vec4 fColor;
 in vec4 fEye;
 in vec4 fNormal;
+in vec2 UVcoords;
 
 out vec4 FragColor;
 
@@ -12,6 +13,8 @@ uniform vec3 lightColor1;
 uniform vec3 lightPos2;
 uniform vec3 lightColor2;
 
+uniform sampler2D myTextureSampler;
+
 uniform float kD; // diffuse
 uniform float kA; // ambient
 uniform float kS; // specular
@@ -19,7 +22,7 @@ uniform float kS; // specular
 
 void main()
 {
-    FragColor = kA * fColor;	//ambient color
+    FragColor = kA *  texture2D(myTextureSampler, UVcoords);	//ambient color
 	float diff, spec;
 	
 	//light source 1
