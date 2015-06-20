@@ -35,6 +35,7 @@
 #include "source/Camera.h"
 #include "source/CameraMode.h"
 #include "source/Lightsource.h"
+#include "source/Texture.h"
 
 /* necessary because GLUT_KEY_something int codes overlap with wasd */
 #define mARROW_LEFT -2
@@ -47,7 +48,8 @@ using namespace std;
 
 /*----------------------------------------------------------------*/
 /* 0: whole housing
- * 1-5: independently moving objects */
+ * 1-4: independently moving objects
+ * 5-6: walls */
 
 /* Flag for starting/stopping animation */
 GLboolean anim = GL_TRUE;
@@ -115,10 +117,10 @@ Lightsource **lights = new Lightsource*[2];
 glm::vec3 hsv_light1;
 
 /*variables for hsv manipulation*/
-float h;
-float s;
-float v;
+float h,s,v;
 glm::vec3 newRgb;
+
+Texture crackles("data/crackles.bmp");
 
 /*----------------------------------------------------------------*/
 
