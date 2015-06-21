@@ -38,21 +38,21 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 		vertex_buffer_data[3 * i] = radius * cos(M_PI * 2 * i / points) + x_offset;
 		vertex_buffer_data[3 * i + 1] = y_offset;
 		vertex_buffer_data[3 * i + 2] = radius * sin(M_PI * 2 * i / points) + z_offset;
-		uv_buffer_data[2 * i] = 0.5 + 0.5 * cos(M_PI * 2 * i / points);
-		uv_buffer_data[2 * i + 1] = 0.5 + 0.5 * sin(M_PI * 2 * i / points);
+		uv_buffer_data[2 * i] = 0.5 + (0.5 - height) * cos(M_PI * 2 * i / points);
+		uv_buffer_data[2 * i + 1] = 0.5 + (0.5 - height) * sin(M_PI * 2 * i / points);
 
 		vertex_buffer_data[3 * points + 3 * i] = radius * cos(M_PI * 2 * i / points) + x_offset;
 		vertex_buffer_data[3 * points + 3 * i + 1] = y_offset + height;
 		vertex_buffer_data[3 * points + 3 * i + 2] = radius * sin(M_PI * 2 * i / points) + z_offset;
 		uv_buffer_data[2 * points + 2 * i] = 0.5 + 0.5 * cos(M_PI * 2 * i / points);
 		uv_buffer_data[2 * points + 2 * i + 1] = 0.5 + 0.5 * sin(M_PI * 2 * i / points);
-		
+
 		// duplicate vertices for hard edges
 		vertex_buffer_data[3 * i + 2 * 3 * points] = radius * cos(M_PI * 2 * i / points) + x_offset;
 		vertex_buffer_data[3 * i + 1 + 2 * 3 * points] = y_offset;
 		vertex_buffer_data[3 * i + 2 + 2 * 3 * points] = radius * sin(M_PI * 2 * i / points) + z_offset;
-		uv_buffer_data[2 * i] = 0.5 * cos(M_PI * 2 * i / points);
-		uv_buffer_data[2 * i + 1] = 0.5 * sin(M_PI * 2 * i / points);
+		uv_buffer_data[2 * i] = 0.5 + (0.5 - height) * cos(M_PI * 2 * i / points);
+		uv_buffer_data[2 * i + 1] = 0.5 + (0.5 - height) * sin(M_PI * 2 * i / points);
 
 		vertex_buffer_data[3 * points + 3 * i + 2 * 3 * points] = radius * cos(M_PI * 2 * i / points) + x_offset;
 		vertex_buffer_data[3 * points + 3 * i + 1 + 2 * 3 * points] = y_offset + height;
