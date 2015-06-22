@@ -47,7 +47,18 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 			1.0, 1.0, 0.0,
 			0.0, 1.0, 0.0
 	};
-	
+
+	GLfloat uv_help[] = {
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1
+	};
+
 
 	int indices[] = {
 			0,1,2,
@@ -63,27 +74,23 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 			5,4,7,
 			5,7,6
 	};
-	GLfloat* vertex_buffer_data_tmp = (GLfloat*) malloc(3*36*sizeof(GLfloat));
-	GLfloat *color_buffer_data_tmp = (GLfloat *) malloc(3 * 36 * sizeof(GLfloat));
 	for (int i = 0; i < 36; i++) {
-		vertex_buffer_data_tmp[3*i] = vertex_help[3*indices[i]];
-		vertex_buffer_data_tmp[3*i+1] = vertex_help[3*indices[i]+1];
-		vertex_buffer_data_tmp[3*i+2] = vertex_help[3*indices[i]+2];
+		vertex_buffer_data[3*i] = vertex_help[3*indices[i]];
+		vertex_buffer_data[3*i+1] = vertex_help[3*indices[i]+1];
+		vertex_buffer_data[3*i+2] = vertex_help[3*indices[i]+2];
+		uv_buffer_data[2 * i] = uv_help[2 * indices[i]];
+		uv_buffer_data[2 * i] = uv_help[2 * indices[i] + 1];
 
-		color_buffer_data_tmp[3*i] = color_help[3*indices[i]];
-		color_buffer_data_tmp[3*i+1] = color_help[3*indices[i]+1];
-		color_buffer_data_tmp[3*i+2] = color_help[3*indices[i]+2];
+		color_buffer_data[3*i] = color_help[3*indices[i]];
+		color_buffer_data[3*i+1] = color_help[3*indices[i]+1];
+		color_buffer_data[3*i+2] = color_help[3*indices[i]+2];
 	}
 
 	GLshort* index_buffer_data_tmp = (GLshort *) malloc(36 * sizeof(GLshort));
-	for (int i = 0; i < 36; i++) {
-		index_buffer_data_tmp[i] = i;
+	for (GLushort i = 0; i < 36; i++) {
+		index_buffer_data[i] = i;
 	}
-	/* copy tmp data buffer into our buffer */
-	memcpy(vertex_buffer_data, vertex_buffer_data_tmp, 3*36 * sizeof(GLfloat));
-	memcpy(color_buffer_data, color_buffer_data_tmp, 3*36 * sizeof(GLfloat));
-	memcpy(index_buffer_data, index_buffer_data_tmp, 3 * 12 * sizeof(GLshort));
-	
+
 	compute_normals();
 }
 

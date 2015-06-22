@@ -69,17 +69,20 @@ GLuint NBO[7];
 /* handlers for texture coordinate buffers */
 GLuint TCBO[7];
 
-/*Define handlers to vertex buffer room_components*/
+/* handlers to vertex buffer room_components*/
 GLuint VBR[2];
 
-/*Define handlers to color buffer room_components*/
+/* handlers to color buffer room_components*/
 GLuint CBR[2];
 
-/*Define handlers to index buffer room_components*/
+/* handlers to index buffer room_components*/
 GLuint IBR[2];
 
-/*Define handlers to index buffer room_components*/
+/* handlers to normal buffer room_components*/
 GLuint NBR[2];
+
+/* handlers to texture coordinates for room components */
+GLuint TCBR[2];
 
 /* Indices to vertex attributes; in this case positon and color */ 
 enum DataID {vPosition = 0, vColor = 1, vNormal = 2, vUV = 3};
@@ -260,6 +263,9 @@ void Display()
 
         glBindBuffer(GL_ARRAY_BUFFER, NBR[i]);
         glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, TCBR[i]);
+        glVertexAttribPointer(vUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR[i]);
 
@@ -675,19 +681,30 @@ void SetupDataBuffers() {
         /* initialize buffers for room components */
         glGenBuffers(1, &VBR[i]);
         glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
-        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->vertex_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->vertex_buffer_data, GL_STATIC_DRAW);
 
         glGenBuffers(1, &IBR[i]);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR[i]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * room_components[0]->triangle_number * sizeof(GLfloat), room_components[i]->index_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * room_components[i]->triangle_number * sizeof(GLfloat),
+                     room_components[i]->index_buffer_data, GL_STATIC_DRAW);
 
         glGenBuffers(1, &CBR[i]);
         glBindBuffer(GL_ARRAY_BUFFER, CBR[i]);
-        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->color_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->color_buffer_data, GL_STATIC_DRAW);
 
         glGenBuffers(1, &NBR[i]);
         glBindBuffer(GL_ARRAY_BUFFER, NBR[i]);
-        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->normal_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->normal_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &TCBR[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, TCBR[i]);
+        glBufferData(GL_ARRAY_BUFFER, 2 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->uv_buffer_data,
+                     GL_STATIC_DRAW);
+
     }
 
 }
