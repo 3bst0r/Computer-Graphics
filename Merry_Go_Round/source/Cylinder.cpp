@@ -64,8 +64,6 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 
 	}
 
-	cout << "radius/ (radius + height) " << 0.5*(radius/(height + radius)) << endl;
-
 	// set center
 	vertex_buffer_data[4 * 3 * points] = x_offset;
 	vertex_buffer_data[4 * 3 * points + 1] = y_offset;
