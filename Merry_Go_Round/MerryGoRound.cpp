@@ -887,7 +887,7 @@ int main(int argc, char** argv)
 
     /* Setup scene and rendering parameters */
     Initialize();
-
+    glEnable(GL_CULL_FACE);
     /* Specify callback functions;enter GLUT event processing loop,
      * handing control over to GLUT */
     glutIdleFunc(OnIdle);

@@ -90,12 +90,12 @@ Cylinder::Cylinder(int points, double radius, double height, double x_offset, do
 		// sides (using duplicate circle points)
 		int j = i + 2 * points;
 		index_buffer_data[12 * i + 0] = j;
-		index_buffer_data[12 * i + 2] = j + points;
-		index_buffer_data[12 * i + 1] = 2 * points + (i + 1) % points + points;
+		index_buffer_data[12 * i + 1] = j + points;
+		index_buffer_data[12 * i + 2] = 2 * points + (i + 1) % points + points;
 
 		index_buffer_data[12 * i + 3] = 2 * points + (i + 1) % points + points;
-		index_buffer_data[12 * i + 4] = j;
-		index_buffer_data[12 * i + 5] = 2 * points + (i + 1) % points;
+		index_buffer_data[12 * i + 5] = j;
+		index_buffer_data[12 * i + 4] = 2 * points + (i + 1) % points;
 	}
 	compute_normals();
 }
