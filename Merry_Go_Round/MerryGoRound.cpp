@@ -79,7 +79,7 @@ GLuint CBR[2];
 /* handlers to index buffer room_components*/
 GLuint IBR[2];
 
-/*Define handlers to normal buffer room_components*/
+/* handlers to normal buffer room_components*/
 GLuint NBR[2];
 
 /* handlers to texture coordinates for room components */
@@ -737,7 +737,7 @@ void SetupDataBuffers() {
         /* initialize buffers for room components */
         glGenBuffers(1, &VBR[i]);
         glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
-        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat),
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[i]->vertex_number * sizeof(GLfloat),
                      room_components[i]->vertex_buffer_data, GL_STATIC_DRAW);
 
         glGenBuffers(1, &IBR[i]);
@@ -966,7 +966,7 @@ int main(int argc, char** argv)
 
     /* Setup scene and rendering parameters */
     Initialize();
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     /* Specify callback functions;enter GLUT event processing loop,
      * handing control over to GLUT */
     glutIdleFunc(OnIdle);

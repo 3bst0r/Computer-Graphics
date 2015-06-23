@@ -43,12 +43,12 @@ Billboard::Billboard(glm::vec3 pos, float width, float height, Camera* c)
     vertex_buffer_data[11] = 0.;
 
     index_buffer_data[0] = 0;
-    index_buffer_data[1] = 1;
-    index_buffer_data[2] = 2;
+    index_buffer_data[1] = 2;
+    index_buffer_data[2] = 1;
 
     index_buffer_data[3] = 1;
-    index_buffer_data[4] = 3;
-    index_buffer_data[5] = 2;
+    index_buffer_data[4] = 2;
+    index_buffer_data[5] = 3;
 
     compute_normals();
 }
