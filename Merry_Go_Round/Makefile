@@ -1,6 +1,6 @@
 CC = g++
 
-OBJ = Cube.o Cylinder.o LoadShader.o Shape.o Transformation.o  OBJParser.o List.o StringExtra.o Model.o Camera.o Block.o Lightsource.o Texture.o
+OBJ = Cube.o Cylinder.o LoadShader.o Shape.o Transformation.o  OBJParser.o List.o StringExtra.o Model.o Camera.o Block.o Lightsource.o Texture.o Billboard.o
 TARGET = MerryGoRound
 
 CFLAGS = -ggdb -Wall 
@@ -26,5 +26,4 @@ clean:
 .PHONY: clean
 
 # Dependencies
-$(TARGET): $(BUILD_DIR)/Cube.o $(BUILD_DIR)/Cylinder.o $(BUILD_DIR)/LoadShader.o $(BUILD_DIR)/Shape.o  $(BUILD_DIR)/Transformation.o $(BUILD_DIR)/OBJParser.o $(BUILD_DIR)/List.o $(BUILD_DIR)/StringExtra.o $(BUILD_DIR)/Model.o $(BUILD_DIR)/Block.o $(BUILD_DIR)/Lightsource.o $(BUILD_DIR)/Camera.o $(BUILD_DIR)/Texture.o| $(BUILD_DIR)
-
+$(TARGET): $(BUILD_DIR)/Cube.o $(BUILD_DIR)/Cylinder.o $(BUILD_DIR)/LoadShader.o $(BUILD_DIR)/Shape.o  $(BUILD_DIR)/Transformation.o $(BUILD_DIR)/OBJParser.o $(BUILD_DIR)/List.o $(BUILD_DIR)/StringExtra.o $(BUILD_DIR)/Model.o $(BUILD_DIR)/Block.o $(BUILD_DIR)/Lightsource.o $(BUILD_DIR)/Camera.o $(BUILD_DIR)/Texture.o  $(BUILD_DIR)/Billboard.o | $(BUILD_DIR)
