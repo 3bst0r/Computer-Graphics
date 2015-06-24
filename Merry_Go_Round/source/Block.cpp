@@ -86,7 +86,7 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 		color_buffer_data[3*i+2] = color_help[3*indices[i]+2];
 	}
 
-	GLshort* index_buffer_data_tmp = (GLshort *) malloc(36 * sizeof(GLshort));
+	//GLshort* index_buffer_data_tmp = (GLshort *) malloc(36 * sizeof(GLshort));
 	for (GLushort i = 0; i < 36; i++) {
 		index_buffer_data[i] = i;
 	}

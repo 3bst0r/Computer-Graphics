@@ -10,6 +10,8 @@
 
 using namespace std;
 
+int containsAlpha = GL_FALSE;
+
 Texture::Texture(const char *filename) {
     if (loadTexture(filename) == 0) {
         cerr << "could not load texture." << endl;
@@ -54,13 +56,15 @@ int Texture::loadTexture(const char *filename) {
         if (*(int*)&(header[0x1E]) !=0)  /* No compression */
         {
             printf("Not a correct BMP file\n");
-            return 0;
+            containsAlpha = GL_TRUE;
+        //    return 0;
         }
 
         if (*(int*)&(header[0x1C]) != 24)  /* 24 bits per pixel */
         {
             printf("Not a correct BMP file\n");
-            return 0;
+            containsAlpha = GL_TRUE;
+           // return 0;
         }
 
         /* Read image information */
@@ -96,16 +100,29 @@ void Texture::setupTexture() {
     /* Bind texture */
     glBindTexture(GL_TEXTURE_2D, TextureID);
 
-    /* Load texture image into memory */
-    glTexImage2D(GL_TEXTURE_2D,     /* Target texture */
-                 0,                 /* Base level */
-                 GL_RGB,            /* Each element is RGB triple */
-                 width,    /* Texture dimensions */
-                 height,
-                 0,                 /* Border should be zero */
-                 GL_BGR,            /* Data storage format for BMP file */
-                 GL_UNSIGNED_BYTE,  /* Type of pixel data, one byte per channel */
-                 data);    /* Pointer to image data  */
+    if (containsAlpha) {
+        /* Load texture image into memory */
+        glTexImage2D(GL_TEXTURE_2D,     /* Target texture */
+                     0,                 /* Base level */
+                     GL_RGBA,            /* Each element is RGB triple */
+                     width,    /* Texture dimensions */
+                     height,
+                     0,                 /* Border should be zero */
+                     GL_RGBA,            /* Data storage format for BMP file */
+                     GL_UNSIGNED_BYTE,  /* Type of pixel data, one byte per channel */
+                     data);    /* Pointer to image data  */
+    } else {
+        /* Load texture image into memory */
+        glTexImage2D(GL_TEXTURE_2D,     /* Target texture */
+                     0,                 /* Base level */
+                     GL_RGB,            /* Each element is RGB triple */
+                     width,    /* Texture dimensions */
+                     height,
+                     0,                 /* Border should be zero */
+                     GL_RGB,            /* Data storage format for BMP file */
+                     GL_UNSIGNED_BYTE,  /* Type of pixel data, one byte per channel */
+                     data);    /* Pointer to image data  */
+    }
 
     /* Next set up texturing parameters */
 

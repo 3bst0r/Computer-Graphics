@@ -145,7 +145,8 @@ glm::vec3 hsv_light1;
 float h,s,v;
 glm::vec3 newRgb;
 
-Texture* crackles;
+Texture *crackles, *cloud;
+
 
 /*----------------------------------------------------------------*/
 
@@ -304,9 +305,6 @@ void Display()
         glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix);
 
         if (objects[i + 5]->texture != NULL && objects[i + 5]->texture->TextureID > 0) {
-            /* Activate first (and only) texture unit */
-            glActiveTexture(GL_TEXTURE0);
-
             /* Bind current texture  */
             glBindTexture(GL_TEXTURE_2D, objects[i+5]->texture->TextureID);
 
@@ -320,7 +318,15 @@ void Display()
         /* Issue draw command, using indexed triangle list */
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
-    /* Draw billboard */
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+
+    /* Bind current texture  */
+    glBindTexture(GL_TEXTURE_2D, cloud->TextureID);
+
+    /* Set location of uniform sampler variable */
+    glUniform1i(TextureUniform, 0);
+
 //    glEnable (GL_BLEND);
 //    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUniform1f(kA, billboard.kA * ky);
@@ -353,7 +359,7 @@ void Display()
     glUniformMatrix4fv(RotationUniform, 1, GL_FALSE, glm::value_ptr(billboard.getPosition()));
 
     glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
-//    glDisable(GL_BLEND);
+    glDisable(GL_BLEND);
 
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
@@ -976,6 +982,7 @@ int main(int argc, char** argv)
     }
 
     crackles = new Texture("data/crackles.bmp");
+    cloud = new Texture("data/cloud.bmp");
     initObjects();
 
     /* Setup scene and rendering parameters */
