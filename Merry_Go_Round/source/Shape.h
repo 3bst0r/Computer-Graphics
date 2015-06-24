@@ -23,6 +23,7 @@
 			void print_normals();
 			void add_shape(Shape* shape);
 
+			Texture* texture;
 			GLfloat* vertex_buffer_data;
 			GLfloat* color_buffer_data;
 			GLfloat* normal_buffer_data;

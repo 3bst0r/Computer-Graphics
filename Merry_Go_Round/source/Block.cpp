@@ -79,7 +79,7 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 		vertex_buffer_data[3*i+1] = vertex_help[3*indices[i]+1];
 		vertex_buffer_data[3*i+2] = vertex_help[3*indices[i]+2];
 		uv_buffer_data[2 * i] = uv_help[2 * indices[i]];
-		uv_buffer_data[2 * i] = uv_help[2 * indices[i] + 1];
+		uv_buffer_data[2 * i + 1] = uv_help[2 * indices[i] + 1];
 
 		color_buffer_data[3*i] = color_help[3*indices[i]];
 		color_buffer_data[3*i+1] = color_help[3*indices[i]+1];

@@ -36,6 +36,7 @@ Shape::Shape(int vertex_number, int triangle_number){
 	kS = 0.3;
 	kD = 0.3;
 	kA = 0.3;
+	texture = NULL;
 }
 
 /******************************************************************
