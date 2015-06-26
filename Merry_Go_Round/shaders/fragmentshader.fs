@@ -16,8 +16,8 @@ uniform vec3 lightColor1;
 uniform vec3 lightPos2;
 uniform vec3 lightColor2;
 
-uniform sampler2D myTextureSampler;
 uniform sampler2DShadow depth_texture;
+uniform sampler2D myTextureSampler;
 
 uniform float kD; // diffuse
 uniform float kA; // ambient
