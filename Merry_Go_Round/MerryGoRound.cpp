@@ -169,15 +169,15 @@ void DrawShadowMap(){
     light_projection_matrix  = glm::frustum(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 50.0f);
     glUseProgram(ShadowShaderProgram);
 
-    glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(light_projection_matrix));
-    glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(light_view_matrix));
+    glUniformMatrix4fv(glGetUniformLocation(ShadowShaderProgram, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(light_projection_matrix));
+    glUniformMatrix4fv(glGetUniformLocation(ShadowShaderProgram, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(light_view_matrix));
     glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     glViewport(0, 0, texture_size, texture_size);
     glClearDepth(1.0f);
     glClear(GL_DEPTH_BUFFER_BIT);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(2.0f, 4.0f);
-
+    glEnableVertexAttribArray(vPosition);
     for (int i = 0; i < 5; i++) {
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
@@ -194,7 +194,7 @@ void DrawShadowMap(){
         GLint size;
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
-        GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+        GLint RotationUniform = glGetUniformLocation(ShadowShaderProgram, "ModelMatrix");
         if (RotationUniform == -1) {
             cerr << "Could not bind uniform ModelMatrix" << endl;
             exit(-1);
@@ -203,7 +203,6 @@ void DrawShadowMap(){
 
         glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
-    /*
     for (int i = 0; i < 2; i++) {
         glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
         glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -219,7 +218,7 @@ void DrawShadowMap(){
         GLint size;
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
-        GLint RoomUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+        GLint RoomUniform = glGetUniformLocation(ShadowShaderProgram, "ModelMatrix");
         if (RoomUniform == -1){
             cerr << "Could not bind uniform ModelMatrix" << endl;
             exit(-1);
@@ -228,7 +227,8 @@ void DrawShadowMap(){
 
 
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
-    }*/
+    }
+    glDisableVertexAttribArray(vPosition);
     glDisable(GL_POLYGON_OFFSET_FILL);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, 600, 600);
@@ -284,7 +284,7 @@ void Display()
 	}
 	glUniform3fv(LightColor1Uniform, 1, glm::value_ptr(lights[0]->rgb));
 
-	/* green moving light
+	/* green moving light */
 	GLint LightPos2Uniform = glGetUniformLocation(ShaderProgram, "lightPos2");
 	if (LightPos2Uniform == -1){
 		cerr << "Could not bind uniform lightPos2" << endl;
@@ -296,7 +296,7 @@ void Display()
 		cerr << "Could not bind uniform lightColor2" << endl;
 		exit(-1);
 	}
-	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));*/
+	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));
 
     GLint kA = glGetUniformLocation(ShaderProgram, "kA");
     GLint kD = glGetUniformLocation(ShaderProgram, "kD");
