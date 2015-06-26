@@ -315,19 +315,18 @@ void Display()
     glUseProgram(ShaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ShadowMatrix"), 1, GL_FALSE,
                        glm::value_ptr(scale_bias_matrix * light_projection_matrix * light_view_matrix));
-    /* Activate first (and only) texture unit */
-    //glActiveTexture(GL_TEXTURE0);
-    /* Bind current texture  */
-    //glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, depth_texture);
 
     /* Get texture uniform handle from fragment shader */
-    //GLuint ShadowUniform  = glGetUniformLocation(ShaderProgram, "depth_texture");
+    GLuint ShadowUniform  = glGetUniformLocation(ShaderProgram, "depth_texture");
 
     /* Set location of uniform sampler variable */
-    //glUniform1i(ShadowUniform, 1);
+    glUniform1i(ShadowUniform, 1);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
 
     /* Get texture uniform handle from fragment shader */
     GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
