@@ -168,7 +168,9 @@ void DrawShadowMap(){
     light_view_matrix  = glm::lookAt(lights[0]->pos, glm::vec3(0, 0, 0), glm::vec3(0,1,0));
     light_projection_matrix  = glm::frustum(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 50.0f);
     glUseProgram(ShadowShaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "MVP_matrix"), 1, GL_FALSE, glm::value_ptr(light_projection_matrix * light_view_matrix));
+
+    glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ProjectionMatrix"), 1, GL_FALSE, glm::value_ptr(light_projection_matrix));
+    glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ViewMatrix"), 1, GL_FALSE, glm::value_ptr(light_view_matrix));
     glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     glViewport(0, 0, texture_size, texture_size);
     glClearDepth(1.0f);
@@ -316,23 +318,23 @@ void Display()
     glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ShadowMatrix"), 1, GL_FALSE,
                        glm::value_ptr(scale_bias_matrix * light_projection_matrix * light_view_matrix));
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, depth_texture);
-
     /* Get texture uniform handle from fragment shader */
     GLuint ShadowUniform  = glGetUniformLocation(ShaderProgram, "depth_texture");
-
-    /* Set location of uniform sampler variable */
-    glUniform1i(ShadowUniform, 1);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
 
     /* Get texture uniform handle from fragment shader */
     GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
 
-    /* Set location of uniform sampler variable */
     glUniform1i(TextureUniform, 0);
+    glUniform1i(ShadowUniform, 1);
+
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, depth_texture);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
+
+
 
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
@@ -413,8 +415,6 @@ void Display()
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
     /* Draw billboard */
-//    glEnable (GL_BLEND);
-//    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUniform1f(kA, billboard.kA * ky);
     glUniform1f(kD, billboard.kD * kx);
     glUniform1f(kS, billboard.kS * kc);
@@ -756,7 +756,6 @@ void OnIdle()
  ******************************************************************/
 
 void SetupShadowMap(){
-
     glGenTextures(1, &depth_texture);
     glBindTexture(GL_TEXTURE_2D, depth_texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, texture_size, texture_size, 0,GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
