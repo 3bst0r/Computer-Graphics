@@ -26,21 +26,29 @@ Billboard::Billboard(glm::vec3 pos, float width, float height, Camera* c)
     vertex_buffer_data[0] = width / 2;
     vertex_buffer_data[1] = 0.;
     vertex_buffer_data[2] = 0.;
+    uv_buffer_data[0] = 0.;
+    uv_buffer_data[1] = 0.;
 
     //bottom right
     vertex_buffer_data[3] = - width / 2;
     vertex_buffer_data[4] = 0.;
     vertex_buffer_data[5] = 0.;
+    uv_buffer_data[2] = 1.;
+    uv_buffer_data[3] = 0.;
 
     //top left
     vertex_buffer_data[6] = width / 2;
     vertex_buffer_data[7] = height;
     vertex_buffer_data[8] = 0.;
+    uv_buffer_data[4] = 0.;
+    uv_buffer_data[5] = 1.;
 
     //top right
     vertex_buffer_data[9] = - width / 2;
     vertex_buffer_data[10] = height;
     vertex_buffer_data[11] = 0.;
+    uv_buffer_data[6] = 1.;
+    uv_buffer_data[7] = 1.;
 
     index_buffer_data[0] = 0;
     index_buffer_data[1] = 2;
