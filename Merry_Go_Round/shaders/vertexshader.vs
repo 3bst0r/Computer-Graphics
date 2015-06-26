@@ -23,7 +23,7 @@ out vec4 fWorld;
 void main(){
 
    if(renderShadow){
-      gl_Position = MVP_matrix * ModelMatrix * vec4(vPosition, 1.0);
+      gl_Position = MVP_matrix * ModelMatrix *  vec4(vPosition, 1.0);
    }else{
       gl_Position = ProjectionMatrix * ViewMatrix * ModelMatrix * vec4(vPosition, 1.0);
       vec4 world_pos = ModelMatrix * vec4(vPosition, 1.0);

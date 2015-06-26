@@ -167,8 +167,7 @@ glm::mat4 scene_model_matrix;
  ******************************************************************/
 
 void DrawShadowMap(){
-
-    light_view_matrix  = glm::lookAt(lights[1]->pos, camera.eye, glm::vec3(0,1,0));
+    light_view_matrix  = glm::lookAt(lights[0]->pos, glm::vec3(0, 0, 0), glm::vec3(0,1,0));
     light_projection_matrix  = glm::frustum(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 50.0f);
     shadowmap = glGetUniformLocation(ShaderProgram, "renderShadow");
     if(shadowmap == -1){
@@ -181,13 +180,12 @@ void DrawShadowMap(){
     }
     glUniform1f(fshadowmap, true);
     glUseProgram(ShaderProgram);
-    scene_model_matrix = glm::mat4();
-    /*for(int i = 0; i < 7; i++){
-       glm::mat4 helper_matrix;
-        memcpy(glm::value_ptr(helper_matrix), ModelMatrix[i].matrix, 16 * sizeof(float));
-       scene_model_matrix *= helper_matrix;
-    }*/
     glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "MVP_matrix"), 1, GL_FALSE, glm::value_ptr(light_projection_matrix * light_view_matrix));
+    glm::vec4 test = light_projection_matrix * light_view_matrix * glm::vec4(0, 0, 0, 1);
+    cout << "test: ";
+    for(int i = 0; i < 4; i++)
+        cout << test[i] << " ";
+    cout << endl;
     glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     glViewport(0, 0, texture_size, texture_size);
     glClearDepth(1.0f);
@@ -195,7 +193,7 @@ void DrawShadowMap(){
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(2.0f, 4.0f);
 
-    for (int i = 0; i < 7; i++) {
+    for (int i = 0; i < 5; i++) {
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
         glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -241,7 +239,7 @@ void DrawShadowMap(){
             cerr << "Could not bind uniform ModelMatrix" << endl;
             exit(-1);
         }
-        glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix);
+        glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[i].matrix);
 
 
         /* Issue draw command, using indexed triangle list */
@@ -304,7 +302,7 @@ void Display()
 	}
 	glUniform3fv(LightColor1Uniform, 1, glm::value_ptr(lights[0]->rgb));
 
-	/* green moving light */
+	/* green moving light
 	GLint LightPos2Uniform = glGetUniformLocation(ShaderProgram, "lightPos2");
 	if (LightPos2Uniform == -1){
 		cerr << "Could not bind uniform lightPos2" << endl;
@@ -316,7 +314,7 @@ void Display()
 		cerr << "Could not bind uniform lightColor2" << endl;
 		exit(-1);
 	}
-	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));
+	glUniform3fv(LightColor2Uniform, 1, glm::value_ptr(lights[1]->rgb));*/
 
     GLint kA = glGetUniformLocation(ShaderProgram, "kA");
     GLint kD = glGetUniformLocation(ShaderProgram, "kD");
@@ -336,13 +334,19 @@ void Display()
     glUseProgram(ShaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ShadowMatrix"), 1, GL_FALSE,
                        glm::value_ptr(scale_bias_matrix * light_projection_matrix * light_view_matrix));
-
     /* Activate first (and only) texture unit */
-    glActiveTexture(GL_TEXTURE0);
+    //glActiveTexture(GL_TEXTURE0);
     /* Bind current texture  */
-    glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
+    //glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, depth_texture);
+
+    /* Get texture uniform handle from fragment shader */
+    //GLuint ShadowUniform  = glGetUniformLocation(ShaderProgram, "depth_texture");
+
+    /* Set location of uniform sampler variable */
+    //glUniform1i(ShadowUniform, 1);
 
     /* Get texture uniform handle from fragment shader */
     GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
@@ -378,7 +382,6 @@ void Display()
 
         GLint size;
         glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-
         GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
         if (RotationUniform == -1) {
             cerr << "Could not bind uniform ModelMatrix" << endl;
@@ -421,7 +424,7 @@ void Display()
 
         if (room_components[i]->texture != NULL && room_components[i]->texture->TextureID > 0) {
 
-            /* Bind current texture  */
+            /* Bind current texture */
             glBindTexture(GL_TEXTURE_2D, room_components[i]->texture->TextureID);
 
         }
@@ -430,6 +433,8 @@ void Display()
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
     /* Draw billboard */
+//    glEnable (GL_BLEND);
+//    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUniform1f(kA, billboard.kA * ky);
     glUniform1f(kD, billboard.kD * kx);
     glUniform1f(kS, billboard.kS * kc);
