@@ -112,13 +112,10 @@ GLuint ShaderProgram;
 Transformation ProjectionMatrix; /* Perspective projection matrix */
 Transformation ModelMatrix[7]; /* Model matrix */
 Transformation RoomMatrix[1];
-Transformation IdentityMatrix;
 Transformation InitialTransform;
 Camera camera(glm::vec3(0,0,10));
 enum CameraMode camera_mode = MANUAL;
 int currentKey = -1;
-int lastX = 0;
-int lastY = 0;
 long t = glutGet(GLUT_ELAPSED_TIME);
 /* camera mode auto stuff */
 double auto_speed;
@@ -148,9 +145,115 @@ glm::vec3 newRgb;
 Texture *crackles, *cloud, *wood;
 
 
+/*Define variables for shadow mapping*/
+GLint shadowmap;
+GLint fshadowmap;
+GLuint depth_texture;
+GLsizei texture_size = 600;
+GLuint depth_fbo;
+glm::mat4 light_view_matrix;
+glm::mat4 light_projection_matrix;
+glm::mat4 scene_model_matrix;
+
+
+
 /*----------------------------------------------------------------*/
 
+/******************************************************************
+ *
+ * DrawShadowMap
+ *
+ * draw the shadow map used for shadow mapping
+ ******************************************************************/
 
+void DrawShadowMap(){
+
+    light_view_matrix  = glm::lookAt(lights[1]->pos, camera.eye, glm::vec3(0,1,0));
+    light_projection_matrix  = glm::frustum(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 50.0f);
+    shadowmap = glGetUniformLocation(ShaderProgram, "renderShadow");
+    if(shadowmap == -1){
+        cerr << "Could not bind uniform shadow render boolean" << endl;
+    }
+    glUniform1f(shadowmap, true);
+    fshadowmap = glGetUniformLocation(ShaderProgram, "fRender");
+    if(fshadowmap == -1){
+        cerr << "Could not bind uniform shadow render boolean" << endl;
+    }
+    glUniform1f(fshadowmap, true);
+    glUseProgram(ShaderProgram);
+    scene_model_matrix = glm::mat4();
+    /*for(int i = 0; i < 7; i++){
+       glm::mat4 helper_matrix;
+        memcpy(glm::value_ptr(helper_matrix), ModelMatrix[i].matrix, 16 * sizeof(float));
+       scene_model_matrix *= helper_matrix;
+    }*/
+    glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "MVP_matrix"), 1, GL_FALSE, glm::value_ptr(light_projection_matrix * light_view_matrix));
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
+    glViewport(0, 0, texture_size, texture_size);
+    glClearDepth(1.0f);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(2.0f, 4.0f);
+
+    for (int i = 0; i < 7; i++) {
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO[i]);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
+        glVertexAttribPointer(vColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[i]);
+
+        GLint size;
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+
+        GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+        if (RotationUniform == -1) {
+            cerr << "Could not bind uniform ModelMatrix" << endl;
+            exit(-1);
+        }
+        glUniformMatrix4fv(RotationUniform, 1, GL_TRUE, ModelMatrix[i].matrix);
+
+        glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+    }
+
+    for (int i = 0; i < 2; i++) {
+        glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
+        glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, CBR[i]);
+        glVertexAttribPointer(vColor, 3, GL_FLOAT,GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, NBR[i]);
+        glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR[i]);
+
+        GLint size;
+        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+
+        GLint RoomUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+        if (RoomUniform == -1){
+            cerr << "Could not bind uniform ModelMatrix" << endl;
+            exit(-1);
+        }
+        glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix);
+
+
+        /* Issue draw command, using indexed triangle list */
+        glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+    }
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    glUniform1f(shadowmap, false);
+    glUniform1f(fshadowmap, false);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, 600, 600);
+
+}
 /******************************************************************
 *
 * Display
@@ -164,9 +267,11 @@ Texture *crackles, *cloud, *wood;
 
 void Display()
 {
+    DrawShadowMap();
     /* Clear window; color specified in 'Initialize()' */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glUseProgram(ShaderProgram);
     /* Associate program with shader matrices */
     GLint projectionUniform = glGetUniformLocation(ShaderProgram, "ProjectionMatrix");
     if (projectionUniform == -1)
@@ -223,11 +328,21 @@ void Display()
         exit(-1);
     }
 
+    const glm::mat4 scale_bias_matrix =
+            glm::mat4(glm::vec4(0.5f, 0.0f, 0.0f, 0.0f),
+                      glm::vec4(0.0f, 0.5f, 0.0f, 0.0f),
+                      glm::vec4(0.0f, 0.0f, 0.5f, 0.0f),
+                      glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
+    glUseProgram(ShaderProgram);
+    glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "ShadowMatrix"), 1, GL_FALSE,
+                       glm::value_ptr(scale_bias_matrix * light_projection_matrix * light_view_matrix));
+
     /* Activate first (and only) texture unit */
     glActiveTexture(GL_TEXTURE0);
-
     /* Bind current texture  */
     glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
+
+    glBindTexture(GL_TEXTURE_2D, depth_texture);
 
     /* Get texture uniform handle from fragment shader */
     GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
@@ -351,12 +466,13 @@ void Display()
     glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     glDisable(GL_BLEND);
 
+
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
     glDisableVertexAttribArray(vColor);
     glDisableVertexAttribArray(vNormal);
     glDisableVertexAttribArray(vUV);
-
+    
     /* Swap between front and back buffer */ 
     glutSwapBuffers();
 }
@@ -648,6 +764,27 @@ void OnIdle()
 }
 
 /******************************************************************
+ *
+ * SetupShadowMap
+ *
+ * setup for shadow mapping
+ ******************************************************************/
+
+void SetupShadowMap(){
+
+    glGenTextures(1, &depth_texture);
+    glBindTexture(GL_TEXTURE_2D, depth_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, texture_size, texture_size, 0,GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glGenFramebuffers(1, &depth_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, depth_texture, 0);
+    glDrawBuffer(GL_NONE);
+}
+
+/******************************************************************
 *
 * initObjects
 *
@@ -915,8 +1052,7 @@ void CreateShaderProgram()
 *******************************************************************/
 
 void Initialize(void)
-{   
-    
+{
     /* Set background (clear) color to black */
     glClearColor(0, 0, 0, 0);
 
@@ -934,7 +1070,6 @@ void Initialize(void)
 
     /* Setup shaders and shader program */
     CreateShaderProgram();
-
     /* Set projection transform */
     float fovy = 45.0;
     float aspect = 1.0;
@@ -946,6 +1081,7 @@ void Initialize(void)
 
     /* Initial transformation matrix */
 	InitialTransform.translate(0, -sqrtf(sqrtf(2.0)), 0);
+    SetupShadowMap();
 }
 
 void initTextures() {
