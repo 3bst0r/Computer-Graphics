@@ -107,7 +107,7 @@ enum DataID {vPosition = 0, vColor = 1, vNormal = 2, vUV = 3};
 static const char* VertexShaderString;
 static const char* FragmentShaderString;
 
-GLuint ShaderProgram;
+GLuint ShaderProgram, ShadowShaderProgram;
 
 Transformation ProjectionMatrix; /* Perspective projection matrix */
 Transformation ModelMatrix[7]; /* Model matrix */
@@ -146,8 +146,6 @@ Texture *crackles, *cloud, *wood;
 
 
 /*Define variables for shadow mapping*/
-GLint shadowmap;
-GLint fshadowmap;
 GLuint depth_texture;
 GLsizei texture_size = 600;
 GLuint depth_fbo;
@@ -169,23 +167,8 @@ glm::mat4 scene_model_matrix;
 void DrawShadowMap(){
     light_view_matrix  = glm::lookAt(lights[0]->pos, glm::vec3(0, 0, 0), glm::vec3(0,1,0));
     light_projection_matrix  = glm::frustum(-1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 50.0f);
-    shadowmap = glGetUniformLocation(ShaderProgram, "renderShadow");
-    if(shadowmap == -1){
-        cerr << "Could not bind uniform shadow render boolean" << endl;
-    }
-    glUniform1f(shadowmap, true);
-    fshadowmap = glGetUniformLocation(ShaderProgram, "fRender");
-    if(fshadowmap == -1){
-        cerr << "Could not bind uniform shadow render boolean" << endl;
-    }
-    glUniform1f(fshadowmap, true);
-    glUseProgram(ShaderProgram);
+    glUseProgram(ShadowShaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(ShaderProgram, "MVP_matrix"), 1, GL_FALSE, glm::value_ptr(light_projection_matrix * light_view_matrix));
-    glm::vec4 test = light_projection_matrix * light_view_matrix * glm::vec4(0, 0, 0, 1);
-    cout << "test: ";
-    for(int i = 0; i < 4; i++)
-        cout << test[i] << " ";
-    cout << endl;
     glBindFramebuffer(GL_FRAMEBUFFER, depth_fbo);
     glViewport(0, 0, texture_size, texture_size);
     glClearDepth(1.0f);
@@ -246,8 +229,6 @@ void DrawShadowMap(){
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
-    glUniform1f(shadowmap, false);
-    glUniform1f(fshadowmap, false);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, 600, 600);
 
@@ -1045,6 +1026,47 @@ void CreateShaderProgram()
 
     /* Put linked shader program into drawing pipeline */
     glUseProgram(ShaderProgram);
+
+    /* Allocate shadow shader object */
+    ShadowShaderProgram = glCreateProgram();
+
+    if (ShadowShaderProgram == 0)
+    {
+        cerr << "Error creating shader program" << endl;
+        exit(1);
+    }
+
+    /* Load shader code from file */
+    VertexShaderString = LoadShader("shaders/shadow.vs");
+    FragmentShaderString = LoadShader("shaders/shadow.fs");
+
+    /* Separately add vertex and fragment shader to program */
+    AddShader(ShadowShaderProgram, VertexShaderString, GL_VERTEX_SHADER);
+    AddShader(ShadowShaderProgram, FragmentShaderString, GL_FRAGMENT_SHADER);
+
+    /* Link shader code into executable shader program */
+    glLinkProgram(ShadowShaderProgram);
+
+    /* Check results of linking step */
+    glGetProgramiv(ShadowShaderProgram, GL_LINK_STATUS, &Success);
+
+    if (Success == 0)
+    {
+        glGetProgramInfoLog(ShadowShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
+        cerr << "Error linking shader program: '" << ErrorLog << "'" << endl;
+        exit(1);
+    }
+
+    /* Check if shader program can be executed */
+    glValidateProgram(ShadowShaderProgram);
+    glGetProgramiv(ShadowShaderProgram, GL_VALIDATE_STATUS, &Success);
+
+    if (!Success)
+    {
+        glGetProgramInfoLog(ShadowShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
+        cerr << "Invalid shader program: '" << ErrorLog << "'" << endl;
+        exit(1);
+    }
 }
 
 /******************************************************************
