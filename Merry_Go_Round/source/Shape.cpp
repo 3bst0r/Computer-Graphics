@@ -31,9 +31,12 @@ Shape::Shape(int vertex_number, int triangle_number){
 	color_buffer_data = (GLfloat*)malloc(3 * vertex_number * sizeof(GLfloat));
 	normal_buffer_data = (GLfloat*)calloc(3 * vertex_number, sizeof(GLfloat));
 	index_buffer_data = (GLushort*)malloc(3 * triangle_number * sizeof(GLushort));
+	uv_buffer_data = (GLfloat *) malloc(2 * vertex_number * sizeof(GLfloat));
+	memset(uv_buffer_data, 0, 2 * vertex_number);
 	kS = 0.3;
 	kD = 0.3;
 	kA = 0.3;
+	texture = NULL;
 }
 
 /******************************************************************
@@ -52,6 +55,8 @@ Shape::~Shape(){
 		free(index_buffer_data);
 	if(normal_buffer_data != NULL)
 		free(normal_buffer_data);
+	if (uv_buffer_data != NULL)
+		free(uv_buffer_data);
 }
 
 void Shape::compute_normals(){
@@ -79,7 +84,7 @@ void Shape::compute_normals(){
 	}
 	
 	for(int i = 0; i < vertex_number; i++){
-		glm::vec3 normalized = glm::normalize(-glm::vec3(normal_buffer_data[3 * i], normal_buffer_data[3 * i + 1], normal_buffer_data[3 * i + 2]));
+		glm::vec3 normalized = glm::normalize(glm::vec3(normal_buffer_data[3 * i], normal_buffer_data[3 * i + 1], normal_buffer_data[3 * i + 2]));
 		normal_buffer_data[3 * i] = normalized[0];
 		normal_buffer_data[3 * i + 1] = normalized[1];
 		normal_buffer_data[3 * i + 2] = normalized[2];
@@ -138,14 +143,18 @@ void Shape::add_shape(Shape* shape) {
 	GLfloat* vertex_buffer_data_t = (GLfloat*) realloc(vertex_buffer_data, 3 * vertex_number * sizeof(GLfloat) + 3 * shape->vertex_number * sizeof(GLfloat));
 	GLfloat* color_buffer_data_t = (GLfloat*) realloc(color_buffer_data, 3 * vertex_number * sizeof(GLfloat) + 3 * shape->vertex_number * sizeof(GLfloat));
 	GLfloat* normal_buffer_data_t = (GLfloat*) realloc(normal_buffer_data, 3 * vertex_number * sizeof(GLfloat) + 3 * shape->vertex_number * sizeof(GLfloat));
+	GLfloat *uv_buffer_data_t = (GLfloat *) realloc(uv_buffer_data, 2 * vertex_number * sizeof(GLfloat) +
+																	2 * shape->vertex_number * sizeof(GLfloat));
 	GLushort* index_buffer_data_t =  (GLushort*) realloc(index_buffer_data, 3 * triangle_number * sizeof(GLushort) + 3 * shape->triangle_number * sizeof(GLushort));
-	
+
+
 	/* check if realloc was ok */
-	if (index_buffer_data_t != NULL && color_buffer_data_t != NULL && index_buffer_data_t != NULL && normal_buffer_data_t != NULL) {
+	if (uv_buffer_data_t != NULL && index_buffer_data_t != NULL && color_buffer_data_t != NULL && index_buffer_data_t != NULL && normal_buffer_data_t != NULL) {
 		vertex_buffer_data = vertex_buffer_data_t;
 		color_buffer_data = color_buffer_data_t;
 		index_buffer_data = index_buffer_data_t;
 		normal_buffer_data = normal_buffer_data_t;
+		uv_buffer_data = uv_buffer_data_t;
 	} else {
 		cerr << "error reallocating memory";
 		exit(-1);
@@ -155,8 +164,10 @@ void Shape::add_shape(Shape* shape) {
 	memcpy(vertex_buffer_data + 3 * vertex_number,shape->vertex_buffer_data,3 * shape->vertex_number * sizeof(GLfloat));
 	memcpy(color_buffer_data + 3 * vertex_number,shape->color_buffer_data,3 * shape->vertex_number * sizeof(GLfloat));
 	memcpy(normal_buffer_data + 3 * vertex_number,shape->normal_buffer_data,3 * shape->vertex_number * sizeof(GLfloat));
+	memcpy(uv_buffer_data + 2 * vertex_number, shape->uv_buffer_data, 2 * shape->vertex_number * sizeof(GLfloat));
 	memcpy(index_buffer_data + 3 * triangle_number,shape->index_buffer_data,3 * shape->triangle_number * sizeof(GLushort));
-	
+
+
 	/* add an offset of triangle_number to all the new indices */
 	for(int i = 3 * triangle_number;i < 3 * (triangle_number + shape->triangle_number); i++) {
 		index_buffer_data[i] += vertex_number;

@@ -4,7 +4,7 @@
 *
 * Computer Graphics Proseminar SS 2015
 * 
-*
+* Hartl Martin, Cvjetkovic Bojan and Ebster Johannes
 *
 *******************************************************************/
 
@@ -35,6 +35,8 @@
 #include "source/Camera.h"
 #include "source/CameraMode.h"
 #include "source/Lightsource.h"
+#include "source/Billboard.h"
+#include "source/Texture.h"
 
 /* necessary because GLUT_KEY_something int codes overlap with wasd */
 #define mARROW_LEFT -2
@@ -47,38 +49,59 @@ using namespace std;
 
 /*----------------------------------------------------------------*/
 /* 0: whole housing
- * 1-5: independently moving objects */
+ * 1-4: independently moving objects
+ * 5-6: walls */
 
 /* Flag for starting/stopping animation */
 GLboolean anim = GL_TRUE;
 
-/* Define handlers to vertex buffer objects */
+/* handlers to vertex buffer objects */
 GLuint VBO[7];
 
-/* Define handlers to color buffer objects */
+/* handlers to color buffer objects */
 GLuint CBO[7];
 
-/* Define handlers to index buffer objects */
+/* handlers to index buffer objects */
 GLuint IBO[7];
 
 /* handlers for normal buffers */
 GLuint NBO[7];
 
-/*Define handlers to vertex buffer room_components*/
+/* handlers for texture coordinate buffers */
+GLuint TCBO[7];
+
+/* handlers to vertex buffer room_components*/
 GLuint VBR[2];
 
-/*Define handlers to color buffer room_components*/
+/* handlers to color buffer room_components*/
 GLuint CBR[2];
 
-/*Define handlers to index buffer room_components*/
+/* handlers to index buffer room_components*/
 GLuint IBR[2];
 
-/*Define handlers to index buffer room_components*/
+/* handlers to normal buffer room_components*/
 GLuint NBR[2];
 
+/* handlers to texture coordinates for room components */
+GLuint TCBR[2];
+
+/* handlers to vertex buffer billboard*/
+GLuint VBB;
+
+/* handlers to color buffer billboard*/
+GLuint CBB;
+
+/* handlers to index buffer billboard*/
+GLuint IBB;
+
+/* handlers to normal buffer billboard*/
+GLuint NBB;
+
+/* handlers to texture coordinates for room billboard */
+GLuint TCBB;
 
 /* Indices to vertex attributes; in this case positon and color */ 
-enum DataID {vPosition = 0, vColor = 1, vNormal = 2};
+enum DataID {vPosition = 0, vColor = 1, vNormal = 2, vUV = 3};
 
 /* Strings for loading and storing shader code */
 static const char* VertexShaderString;
@@ -102,6 +125,9 @@ int ky = 1;
 int kx = 1;
 int kc = 1;
 
+/* billboard */
+Billboard billboard(glm::vec3(0., 2.5, 0.), 2.5, 1.5, &camera);
+
 /* displayable objects */
 Shape **objects = new Shape*[6];
 
@@ -113,10 +139,10 @@ Lightsource **lights = new Lightsource*[2];
 glm::vec3 hsv_light1;
 
 /*variables for hsv manipulation*/
-float h;
-float s;
-float v;
+float h,s,v;
 glm::vec3 newRgb;
+
+Texture* crackles;
 
 /*Define variables for shadow mapping*/
 GLint shadowmap;
@@ -311,9 +337,22 @@ void Display()
                        glm::value_ptr(scale_bias_matrix * light_projection_matrix * light_view_matrix));
     glBindTexture(GL_TEXTURE_2D, depth_texture);
 
+    /* Activate first (and only) texture unit */
+    glActiveTexture(GL_TEXTURE0);
+
+    /* Bind current texture  */
+    glBindTexture(GL_TEXTURE_2D, crackles->TextureID);
+
+    /* Get texture uniform handle from fragment shader */
+    GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
+
+    /* Set location of uniform sampler variable */
+    glUniform1i(TextureUniform, 0);
+
     glEnableVertexAttribArray(vPosition);
     glEnableVertexAttribArray(vColor);
     glEnableVertexAttribArray(vNormal);
+    glEnableVertexAttribArray(vUV);
 
     for (int i = 0; i < 7; i++) {
 
@@ -327,6 +366,9 @@ void Display()
 
         glBindBuffer(GL_ARRAY_BUFFER, CBO[i]);
         glVertexAttribPointer(vColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, TCBO[i]);
+        glVertexAttribPointer(vUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
         glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
         glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -347,6 +389,11 @@ void Display()
     }
 
     for (int i = 0; i < 2; i++) {
+
+        glUniform1f(kA, room_components[i]->kA * ky);
+        glUniform1f(kD, room_components[i]->kD * kx);
+        glUniform1f(kS, room_components[i]->kS * kc);
+
         glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
         glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
@@ -355,6 +402,9 @@ void Display()
 
         glBindBuffer(GL_ARRAY_BUFFER, NBR[i]);
         glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, TCBR[i]);
+        glVertexAttribPointer(vUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR[i]);
 
@@ -368,17 +418,66 @@ void Display()
         }
         glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix);
 
+        if (objects[i + 5]->texture != NULL && objects[i + 5]->texture->TextureID > 0) {
+            /* Activate first (and only) texture unit */
+            glActiveTexture(GL_TEXTURE0);
+
+            /* Bind current texture  */
+            glBindTexture(GL_TEXTURE_2D, objects[i+5]->texture->TextureID);
+
+            /* Get texture uniform handle from fragment shader */
+            GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
+
+            /* Set location of uniform sampler variable */
+            glUniform1i(TextureUniform, 0);
+        }
 
         /* Issue draw command, using indexed triangle list */
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
+    /* Draw billboard */
+//    glEnable (GL_BLEND);
+//    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glUniform1f(kA, billboard.kA * ky);
+    glUniform1f(kD, billboard.kD * kx);
+    glUniform1f(kS, billboard.kS * kc);
+
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBB);
+    glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, CBB);
+    glVertexAttribPointer(vColor, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, TCBB);
+    glVertexAttribPointer(vUV, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, NBB);
+    glVertexAttribPointer(vNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBB);
+
+    GLint size;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+
+    GLint RotationUniform = glGetUniformLocation(ShaderProgram, "ModelMatrix");
+    if (RotationUniform == -1) {
+        cerr << "Could not bind uniform ModelMatrix" << endl;
+        exit(-1);
+    }
+    glUniformMatrix4fv(RotationUniform, 1, GL_FALSE, glm::value_ptr(billboard.getPosition()));
+
+    glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+//    glDisable(GL_BLEND);
+
 
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
     glDisableVertexAttribArray(vColor);
     glDisableVertexAttribArray(vNormal);
-
-    /* Swap between front and back buffer */
+    glDisableVertexAttribArray(vUV);
+    
+    /* Swap between front and back buffer */ 
     glutSwapBuffers();
 }
 
@@ -699,8 +798,8 @@ void SetupShadowMap(){
 
 void initObjects() {
 	/* create the basic shape */
-    objects[0] = new Cylinder(200, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
-    objects[0]->add_shape(new Cylinder(200, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
+    objects[0] = new Cylinder(500, 3., 0.2, 0., 0., 0., 0., 1., 0., 0.);
+    objects[0]->add_shape(new Cylinder(500, 3., 0.2, 0., 2., 0., 1., 1., 0., 0.));
     objects[0]->add_shape(new Cylinder(50, 0.3, 1.8, 0., 0.2, 0., 0., 1., 1., 0.));
 
     objects[0]->add_shape(new Cylinder(20, 0.1, 1.8, 2., 0.2, 0., 0., 0., 0., 1.));
@@ -728,17 +827,18 @@ void initObjects() {
     }
 
     obj_scene_data sphere;
-    /* Load horse OBJ model */
-    char filename2[] = "models/sphere.obj";
+    /* Load sphere OBJ model */
+    char filename2[] = "models/Sphere.obj";
     if(!parse_obj_scene(&sphere, filename2)){
         cerr << "Could not load file. Exiting." << endl;
         exit(EXIT_FAILURE);
     }
 
     objects[5] = new Model(sphere, 0., 2, 5., .1, 1., 1., 1.);
-    objects[6] = new Model(sphere, 0., 1., 5., .1, 0., 1., 0.);
+    objects[6] = new Model(sphere, 0., 1., 5., .1, 1., 1., 1.);
 
     room_components[0] = new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0);
+    room_components[0]->texture = crackles;
     room_components[1] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
 	/* set light sources */
 	lights[0] = new Lightsource(0., 2, 5.0, 1.0, 1.0, 1.0); //fixed light
@@ -777,27 +877,65 @@ void SetupDataBuffers() {
         glGenBuffers(1, &NBO[i]);
         glBindBuffer(GL_ARRAY_BUFFER, NBO[i]);
         glBufferData(GL_ARRAY_BUFFER, 3 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->normal_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &TCBO[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, TCBO[i]);
+        glBufferData(GL_ARRAY_BUFFER, 2 * objects[i]->vertex_number * sizeof(GLfloat), objects[i]->uv_buffer_data,
+                     GL_STATIC_DRAW);
     }
     for (int i = 0; i < 2; i++) {
 
         /* initialize buffers for room components */
         glGenBuffers(1, &VBR[i]);
         glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
-        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->vertex_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->vertex_buffer_data, GL_STATIC_DRAW);
 
         glGenBuffers(1, &IBR[i]);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBR[i]);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * room_components[0]->triangle_number * sizeof(GLfloat), room_components[i]->index_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * room_components[i]->triangle_number * sizeof(GLfloat),
+                     room_components[i]->index_buffer_data, GL_STATIC_DRAW);
 
         glGenBuffers(1, &CBR[i]);
         glBindBuffer(GL_ARRAY_BUFFER, CBR[i]);
-        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->color_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->color_buffer_data, GL_STATIC_DRAW);
 
         glGenBuffers(1, &NBR[i]);
         glBindBuffer(GL_ARRAY_BUFFER, NBR[i]);
-        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[0]->vertex_number * sizeof(GLfloat), room_components[i]->normal_buffer_data, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 3 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->normal_buffer_data, GL_STATIC_DRAW);
+
+        glGenBuffers(1, &TCBR[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, TCBR[i]);
+        glBufferData(GL_ARRAY_BUFFER, 2 * room_components[i]->vertex_number * sizeof(GLfloat),
+                     room_components[i]->uv_buffer_data,
+                     GL_STATIC_DRAW);
+
     }
 
+    /* initialize buffers for billboard */
+    glGenBuffers(1, &VBB);
+    glBindBuffer(GL_ARRAY_BUFFER, VBB);
+    glBufferData(GL_ARRAY_BUFFER, 3 * billboard.vertex_number * sizeof(GLfloat), billboard.vertex_buffer_data, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &IBB);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBB);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * billboard.triangle_number * sizeof(GLfloat), billboard.index_buffer_data, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &CBB);
+    glBindBuffer(GL_ARRAY_BUFFER, CBB);
+    glBufferData(GL_ARRAY_BUFFER, 3 * billboard.vertex_number * sizeof(GLfloat), billboard.color_buffer_data, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &NBB);
+    glBindBuffer(GL_ARRAY_BUFFER, NBB);
+    glBufferData(GL_ARRAY_BUFFER, 3 * billboard.vertex_number * sizeof(GLfloat), billboard.normal_buffer_data, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &TCBB);
+    glBindBuffer(GL_ARRAY_BUFFER, TCBB);
+    glBufferData(GL_ARRAY_BUFFER, 2 * billboard.vertex_number * sizeof(GLfloat),
+                billboard.uv_buffer_data,
+                 GL_STATIC_DRAW);
 }
 
 /******************************************************************
@@ -958,23 +1096,27 @@ int main(int argc, char** argv)
     initObjects();
     /* Initialize GLUT; set double buffered window and RGBA color model */
     glutInit(&argc, argv);
-	glutInitContextVersion(3, 3);
-	glutInitContextProfile(GLUT_CORE_PROFILE);
+    glutInitContextVersion(3, 3);
+    glutInitContextProfile(GLUT_CORE_PROFILE);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(600, 600);
     glutInitWindowPosition(400, 400);
     glutCreateWindow("CG Proseminar - Merry-Go-Round");
-	/* Initialize GL extension wrangler */
-	glewExperimental = GL_TRUE;
+    /* Initialize GL extension wrangler */
+    glewExperimental = GL_TRUE;
     GLenum res = glewInit();
-    if (res != GLEW_OK) 
+    if (res != GLEW_OK)
     {
         cerr << "Error: '" << glewGetErrorString(res) << "'" << endl;
         return 1;
     }
 
+    crackles = new Texture("data/crackles.bmp");
+    initObjects();
+
     /* Setup scene and rendering parameters */
     Initialize();
+    glEnable(GL_CULL_FACE);
     /* Specify callback functions;enter GLUT event processing loop,
      * handing control over to GLUT */
     glutIdleFunc(OnIdle);
