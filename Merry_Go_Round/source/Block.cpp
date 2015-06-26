@@ -85,8 +85,23 @@ Block::Block(float x_val, float y_val, float z_val, float height, float width, f
 		color_buffer_data[3*i+1] = color_help[3*indices[i]+1];
 		color_buffer_data[3*i+2] = color_help[3*indices[i]+2];
 	}
+	GLfloat uv_buffer_data_tmp[] = {
+			0,0, 1,0, 1,1, 	// 0,1,2
+			0,0, 1,1, 0,1, 	// 0,2,3
+			0,0, 1,0, 1,1,	// 1,5,6
+			0,0, 1,1, 0,1,	// 1,6,2
+			1,0, 0,0, 0,1,	// 4,0,3
+			1,0, 0,1, 1,1,	// 4,3,7
+			0,1, 1,1, 1,0,	// 4,5,1
+			0,1, 1,0, 0,0,	// 4,1,0
+			0,0, 1,0, 1,1,	// 3,2,6
+			0,0, 1,1, 0,1,	// 3,6,7
+			1,0, 0,0, 0,1,	// 5,4,7
+			1,0, 0,1, 1,1   // 5,7,6
+	};
 
-	GLshort* index_buffer_data_tmp = (GLshort *) malloc(36 * sizeof(GLshort));
+
+	memcpy(uv_buffer_data,uv_buffer_data_tmp,36*2*sizeof(*uv_buffer_data));
 	for (GLushort i = 0; i < 36; i++) {
 		index_buffer_data[i] = i;
 	}
