@@ -145,7 +145,8 @@ glm::vec3 hsv_light1;
 float h,s,v;
 glm::vec3 newRgb;
 
-Texture* crackles, *cloud;
+Texture *crackles, *cloud, *wood;
+
 
 /*----------------------------------------------------------------*/
 
@@ -303,26 +304,17 @@ void Display()
         }
         glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix);
 
-        if (objects[i + 5]->texture != NULL && objects[i + 5]->texture->TextureID > 0) {
-            /* Activate first (and only) texture unit */
-            glActiveTexture(GL_TEXTURE0);
+        if (room_components[i]->texture != NULL && room_components[i]->texture->TextureID > 0) {
 
             /* Bind current texture  */
-            glBindTexture(GL_TEXTURE_2D, objects[i+5]->texture->TextureID);
+            glBindTexture(GL_TEXTURE_2D, room_components[i]->texture->TextureID);
 
-            /* Get texture uniform handle from fragment shader */
-            GLuint TextureUniform  = glGetUniformLocation(ShaderProgram, "myTextureSampler");
-
-            /* Set location of uniform sampler variable */
-            glUniform1i(TextureUniform, 0);
         }
 
         /* Issue draw command, using indexed triangle list */
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
     /* Draw billboard */
-//    glEnable (GL_BLEND);
-//    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUniform1f(kA, billboard.kA * ky);
     glUniform1f(kD, billboard.kD * kx);
     glUniform1f(kS, billboard.kS * kc);
@@ -705,8 +697,9 @@ void initObjects() {
     objects[6] = new Model(sphere, 0., 1., 5., .1, 1., 1., 1.);
 
     room_components[0] = new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0);
-    room_components[0]->texture = crackles;
+    room_components[0]->texture = wood;
     room_components[1] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
+    room_components[1]->texture = wood;
 
     /* billboard */
     billboard.kA = 0.6;
@@ -955,6 +948,11 @@ void Initialize(void)
 	InitialTransform.translate(0, -sqrtf(sqrtf(2.0)), 0);
 }
 
+void initTextures() {
+    crackles = new Texture("data/crackles.bmp");
+    cloud = new Texture("data/cloud.bmp");
+    wood = new Texture("data/wood.bmp");
+}
 
 /******************************************************************
 *
@@ -985,8 +983,7 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    crackles = new Texture("data/crackles.bmp");
-    cloud = new Texture("data/cloud.bmp");
+    initTextures();
     initObjects();
 
     /* Setup scene and rendering parameters */
