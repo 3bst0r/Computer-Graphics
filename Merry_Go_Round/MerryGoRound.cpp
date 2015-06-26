@@ -703,6 +703,11 @@ void initObjects() {
     room_components[0] = new Block(0.0, -1.25, 3.0, 0.1, 12.0, 14.0);
     room_components[0]->texture = crackles;
     room_components[1] = new Block(0.0, 3.75, -4.0, 10.0, 12.0, 0.1);
+
+    /* billboard */
+    billboard.kA = 0.6;
+    billboard.kD = 0.;
+    billboard.kS = 0.;
 	/* set light sources */
 	lights[0] = new Lightsource(0., 2, 5.0, 1.0, 1.0, 1.0); //fixed light
 	lights[1] = new Lightsource(0., 1., 5., 0., 1., 0.); //light moving with the merry go round
