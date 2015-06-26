@@ -18,7 +18,6 @@ uniform vec3 lightColor1;
 
 uniform sampler2D myTextureSampler;
 uniform sampler2DShadow depth_texture;
-uniform bool fRender;
 
 uniform float kD; // diffuse
 uniform float kA; // ambient
@@ -26,9 +25,6 @@ uniform float kS; // specular
 
 void main()
 {
-	if(fRender){
-		FragColor = vec4(1.0);
-	}else{
 		vec4 texel = texture2D(myTextureSampler,UVcoords);
 		
 		FragColor = kA * texel;	//ambient color
@@ -49,5 +45,4 @@ void main()
 	
 		FragColor += kD * diff * (0.3 * vec4(lightColor2, 1.) + 0.7  * texel);
 		FragColor += kS * pow(spec, 2) * (0.5 * vec4(lightColor2, 1.) + 0.5 * vec4(1., 1., 1., 1.));*/
-	}
 }
