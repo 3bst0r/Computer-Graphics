@@ -129,7 +129,7 @@ int kx = 1;
 int kc = 1;
 
 /* billboard */
-Billboard billboard(glm::vec3(0., 2.5, 0.), 2.5, 1.5, &camera);
+Billboard billboard(glm::vec3(0., 2.5, 0.), 8, 3, &camera);
 
 /* displayable objects */
 Shape **objects = new Shape*[6];
@@ -145,7 +145,7 @@ glm::vec3 hsv_light1;
 float h,s,v;
 glm::vec3 newRgb;
 
-Texture* crackles;
+Texture* crackles, *cloud;
 
 /*----------------------------------------------------------------*/
 
@@ -352,8 +352,12 @@ void Display()
     }
     glUniformMatrix4fv(RotationUniform, 1, GL_FALSE, glm::value_ptr(billboard.getPosition()));
 
+    glBindTexture(GL_TEXTURE_2D, billboard.texture->TextureID);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
     glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
-//    glDisable(GL_BLEND);
+    glDisable(GL_BLEND);
 
     /* Disable attributes */
     glDisableVertexAttribArray(vPosition);
@@ -708,6 +712,7 @@ void initObjects() {
     billboard.kA = 0.6;
     billboard.kD = 0.;
     billboard.kS = 0.;
+    billboard.texture = cloud;
 	/* set light sources */
 	lights[0] = new Lightsource(0., 2, 5.0, 1.0, 1.0, 1.0); //fixed light
 	lights[1] = new Lightsource(0., 1., 5., 0., 1., 0.); //light moving with the merry go round
@@ -981,6 +986,7 @@ int main(int argc, char** argv)
     }
 
     crackles = new Texture("data/crackles.bmp");
+    cloud = new Texture("data/cloud.bmp");
     initObjects();
 
     /* Setup scene and rendering parameters */
