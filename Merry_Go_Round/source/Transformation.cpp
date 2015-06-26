@@ -27,7 +27,7 @@ using namespace std;
 
 Transformation::Transformation(){
 	matrix = (float*)calloc(16, sizeof(float));
-	
+
 	if(matrix == NULL){
 		cerr << "calloc returned NULL" << endl;
 		exit(EXIT_FAILURE);
