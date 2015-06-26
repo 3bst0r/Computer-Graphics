@@ -203,7 +203,7 @@ void DrawShadowMap(){
 
         glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
     }
-
+    /*
     for (int i = 0; i < 2; i++) {
         glBindBuffer(GL_ARRAY_BUFFER, VBR[i]);
         glVertexAttribPointer(vPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -224,12 +224,11 @@ void DrawShadowMap(){
             cerr << "Could not bind uniform ModelMatrix" << endl;
             exit(-1);
         }
-        glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[i].matrix);
+        glUniformMatrix4fv(RoomUniform, 1, GL_FALSE, RoomMatrix[0].matrix);
 
 
-        /* Issue draw command, using indexed triangle list */
         glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
-    }
+    }*/
     glDisable(GL_POLYGON_OFFSET_FILL);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, 600, 600);

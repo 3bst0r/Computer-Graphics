@@ -25,5 +25,5 @@ void main(){
       fColor = vec4(vColor, 1.0);
       UVcoords = UV;
       fWorld = vec4(vPosition, 1.0);
-      fShadow = ShadowMatrix * (ModelMatrix * vec4(vPosition, 1.0));
+      fShadow = ShadowMatrix * ModelMatrix * vec4(vPosition, 1.0);
 }
